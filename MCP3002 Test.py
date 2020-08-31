@@ -1,6 +1,7 @@
 # Andrew Bruckbauer
 # 8.27.2020
 # Purpose of this code is to test to see if the MCP converter is hooked up correctly and test outputs
+# http://raspberry.io/projects/view/reading-from-a-mcp3002-analog-to-digital-converter/
 # PI (Left) - MCP (Right)
 # GND - CH1 and VSS
 # 3v3 - VDD
