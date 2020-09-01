@@ -1,6 +1,7 @@
 # Andrew Bruckbauer
 # 8.27.2020
 # Purpose of this code is to test to see if the MCP converter is hooked up correctly and test outputs
+# https://learn.sparkfun.com/tutorials/python-programming-tutorial-getting-started-with-the-raspberry-pi/experiment-3-spi-and-analog-input
 # PI (Left) - MCP (Right)
 # GND - CH1 and VSS
 # 3v3 - VDD
