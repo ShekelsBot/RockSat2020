@@ -29,5 +29,5 @@ while True:
     #reads object temp
     print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp, TempConversion(obj_temp)))
     #reads die temp -
-    print ('   Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp, TempConversion(die_temp)))
+    print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp, TempConversion(die_temp)))
     time.sleep(1.0)
