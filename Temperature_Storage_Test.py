@@ -39,7 +39,7 @@ sensor = TMP006.TMP006(address=0x40, busnum=1)
 sensor.begin()
 
 # Loop printing measurements every second.
-print 'Press Ctrl-C to quit.'
+print ('Press Ctrl-C to quit.')
 while True:
     write_temp(die_temp)
     # graph(die_temp)
@@ -47,8 +47,8 @@ while True:
     obj_temp = sensor.readObjTempC()
     die_temp = sensor.readDieTempC()
     #reads object temp
-    print 'Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp, TempConversion(obj_temp))
+    print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp, TempConversion(obj_temp)))
     #reads die temp -
-    print '   Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp, TempConversion(die_temp))
+    print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp, TempConversion(die_temp)))
     #time.sleep(1.0)
     plt.pause(1)
