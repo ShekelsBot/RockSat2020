@@ -8,23 +8,24 @@
 # VL53L0X Adafruit Module
 
 # Will print the sensed range/distance every second.
-import time
+from time import sleep, strftime, time
+import matplotlib.pyplot as plt
 import board
 import busio
 import adafruit_vl53l0x
+
+def write(distance): #distance file
+    with open("/home/pi/range.csv", "a") as log:
+        log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),str(distance)))
 
 # Initialize I2C bus and sensor.
 i2c = busio.I2C(board.SCL, board.SDA)
 vl53 = adafruit_vl53l0x.VL53L0X(i2c)
 
-# Optionally adjust the measurement timing budget to change speed and accuracy.
-# For example a higher speed but less accurate timing budget of 20ms:
-# vl53.measurement_timing_budget = 20000
-# Or a slower but more accurate timing budget of 200ms:
-# vl53.measurement_timing_budget = 200000
-# The default timing budget is 33ms, a good compromise of speed and accuracy.
-
-# Main loop will read the range and print it every second.
+# Main loop will read the range and print it every second. and record it
 while True:
+    distance = vl53.range
+
     print("Range: {0}mm".format(vl53.range))
-    time.sleep(1.0)
+    write(distance)
+    plt.pause(1)
