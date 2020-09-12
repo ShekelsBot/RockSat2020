@@ -26,10 +26,10 @@ def write_obj_temp(obj_1): #obj temp file SENSOR 2
         log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),str(obj_1)))
 
 def write_die_temp_2(die_2): #obj temp file SENSOR 2
-    with open("/home/pi/obj_temp.csv", "a") as log:
+    with open("/home/pi/obj_temp_2.csv", "a") as log:
         log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),str(die_2)))
 def write_obj_temp_2(obj_2): #obj temp file SENSOR 2
-    with open("/home/pi/obj_temp.csv", "a") as log:
+    with open("/home/pi/obj_temp_2.csv", "a") as log:
         log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),str(obj_2)))
 
 def graph(temp):
@@ -57,14 +57,14 @@ print ('Press Ctrl-C to quit.')
 while True:
 
     die_temp = sensor.readDieTempC()
-    die_1 = die_temp
+    die_1 = TempConversion(die_temp)
     obj_temp = sensor.readObjTempC()
-    obj_1 = obj_temp
+    obj_1 = TempConversion(obj_temp)
 
     die_temp2 = sensor_2.readDieTempC()
-    die_2 = die_temp2
+    die_2 = TempConversion(die_temp2)
     obj_temp2 = sensor_2.readObjTempC()
-    obj_2= obj_temp2
+    obj_2= TempConversion(obj_temp2)
 
     #reads object temp
     #reads die temp
