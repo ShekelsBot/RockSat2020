@@ -9,6 +9,7 @@ from time import sleep, strftime, time
 #import busio
 import matplotlib.pyplot as plt
 import Adafruit_TMP.TMP006 as TMP006
+import adafruit_vl53l0x
 
 plt.ion()
 x = []
@@ -32,6 +33,10 @@ def write_obj_temp_2(obj_2): #obj temp file SENSOR 2
     with open("/home/pi/obj_temp_2.csv", "a") as log:
         log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),str(obj_2)))
 
+def write(distance): #distance file
+    with open("/home/pi/range.csv", "a") as log:
+        log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),str(distance)))
+
 def graph(temp):
     y.append(temp)
     x.append(time())
@@ -43,11 +48,12 @@ def graph(temp):
 # Initialze sensor
 sensor = TMP006.TMP006()
 sensor_2 = TMP006.TMP006()
+sensor_distance = adafruit_vl53l0x.VL53L0X()
 
-# Default i2C address is 0x40 and bus is 1.
 #i2c = busio.I2C(board.SCL, board.SDA)
-sensor = TMP006.TMP006(address=0x40, busnum=1)
-sensor_2 = TMP006.TMP006(address=0x41, busnum =1) #change 3v to ad0
+sensor = TMP006.TMP006(address=0x40, busnum=1) # Default i2C address is 0x40 and bus is 1.
+sensor_2 = TMP006.TMP006(address=0x41, busnum =1) # change 3v to ad0
+sensor_distance = adafruit_vl53l0x.VL53L0X(addresss=0x29, busnum=1) # Default address of the Distance sensor
 
 # Default rate is 16 samples per loop.
 sensor.begin()
@@ -55,6 +61,10 @@ sensor_2.begin()
 # Loop printing measurements every second.
 print ('Press Ctrl-C to quit.')
 print ('Storing data /home/pi')
+print ('Temperature is in Fahrenheit')
+print ('Distance is in MM')
+
+
 while True:
 
     die_temp = sensor.readDieTempC()
@@ -74,6 +84,7 @@ while True:
 
     write_die_temp(die_1)
     write_obj_temp(obj_1)
+    # graph(die_temp) - Graphing function for testing
     plt.pause(1)
 
     #time.sleep(0.1) #prevents crash from interference
@@ -82,5 +93,9 @@ while True:
 
     write_die_temp_2(die_2)
     write_obj_temp_2(obj_2)
-    # graph(die_temp) - Graphing function for testing
     plt.pause(2)
+
+    distance = sensor_distance
+    print("Range: {0}mm".format(sensor_distance.range))
+    write(distance)
+    plt.pause(1)
