@@ -26,7 +26,7 @@ def write_obj_temp(obj_1): #obj temp file SENSOR 2
         log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),str(obj_1)))
 
 def write_die_temp_2(die_2): #obj temp file SENSOR 2
-    with open("/home/pi/obj_temp_2.csv", "a") as log:
+    with open("/home/pi/die_temp_2.csv", "a") as log:
         log.write("{0},{1}\n".format(strftime("%Y-%m-%d %H:%M:%S"),str(die_2)))
 def write_obj_temp_2(obj_2): #obj temp file SENSOR 2
     with open("/home/pi/obj_temp_2.csv", "a") as log:
@@ -54,6 +54,7 @@ sensor.begin()
 sensor_2.begin()
 # Loop printing measurements every second.
 print ('Press Ctrl-C to quit.')
+print ('Storing data /home/pi')
 while True:
 
     die_temp = sensor.readDieTempC()
@@ -68,16 +69,18 @@ while True:
 
     #reads object temp
     #reads die temp
-    print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp, TempConversion(obj_temp)))
-    print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp, TempConversion(die_temp)))
+    #print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp, TempConversion(obj_temp)))
+    #print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp, TempConversion(die_temp)))
+
     write_die_temp(die_1)
     write_obj_temp(obj_1)
+    plt.pause(1)
 
-    time.sleep(0.1) #prevents crash from interference
+    #time.sleep(0.1) #prevents crash from interference
+    #print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp2, TempConversion(obj_temp2)))
+    #print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp2, TempConversion(die_temp2)))
 
-    print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp2, TempConversion(obj_temp2)))
-    print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp2, TempConversion(die_temp2)))
     write_die_temp_2(die_2)
     write_obj_temp_2(obj_2)
     # graph(die_temp) - Graphing function for testing
-    plt.pause(1)
+    plt.pause(2)
