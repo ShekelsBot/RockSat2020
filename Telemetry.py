@@ -1,9 +1,12 @@
 # Andrew Bruckbauer
 # 8/18/2020
-# Temperature Sensor Module
-# Purpose of the code is to create a temp sensor
+# Telemetry Module
+# Purpose of the code is to create the telemetry module
 # https://learn.adafruit.com/tmp006-temperature-sensor-python-library/software
+# https://learn.adafruit.com/adafruit-vl53l0x-micro-lidar-distance-sensor-breakout/python-circuitpython
+# https://github.com/pololu/vl53l0x-arduino/blob/master/examples/Single/Single.ino
 # TMP006 Adafruit Module
+# VL5310x Adafruit Module
 
 from time import sleep, strftime, time
 import matplotlib.pyplot as plt
