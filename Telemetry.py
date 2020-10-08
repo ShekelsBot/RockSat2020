@@ -1,19 +1,27 @@
 # Andrew Bruckbauer
 # 8/18/2020
-# Telemetry Module
-# Purpose of the code is to create the telemetry module
+# Temperature Sensor Module
+# Purpose of the code is to create a temp sensor
 # https://learn.adafruit.com/tmp006-temperature-sensor-python-library/software
-# https://learn.adafruit.com/adafruit-vl53l0x-micro-lidar-distance-sensor-breakout/python-circuitpython
-# https://github.com/pololu/vl53l0x-arduino/blob/master/examples/Single/Single.ino
 # TMP006 Adafruit Module
-# VL5310x Adafruit Module
 
-from time import sleep, strftime, time
+#from time import sleep, strftime, time
+import time
 import matplotlib.pyplot as plt
 import board
 import busio
 import Adafruit_TMP.TMP006 as TMP006
 import adafruit_vl53l0x
+import picamera
+import os
+import psutil
+
+MAX_FILES = 999
+DURATION = 20
+SPACE_LIMIT = 80
+TIME_STATUS_OK = 0.5
+
+file_root = "/home/pi/videos/"
 
 # Function to convert celsius (c) to fahrenhiet.
 def TempConversion(c):
@@ -47,6 +55,32 @@ print ('Storing data /home/pi/data')
 print ('Temperature is in Fahrenheit')
 print ('Distance is in MM')
 
+if(psutil.disk_usage(".").percent > SPACE_LIMIT):
+	print('WARNING: Low space!')
+	exit()
+
+with picamera.PiCamera() as camera:
+	camera.resolution = (1920,1080)
+	camera.framerate = 30
+
+	print('Searching files...')
+	for i in range(1, MAX_FILES):
+		file_number = i
+		file_name = file_root + "video" + str(i).zfill(3) + ".h264"
+		exists = os.path.isfile(file_name)
+		if not exists:
+			print ("Search Complete")
+			break
+
+	for file_name in camera.record_sequence(file_root + "video%03d.h264" % i for i in range(file_number, MAX_FILES)):
+		timeout = time.time() + DURATION
+		print('Recording to %s' % file_name)
+
+		while(time.time() < timeout):
+			time.sleep(TIME_STATUS_OK)
+			if(psutil.disk_usage(".").percent > SPACE_LIMIT):
+				print('WARNING: Low space!')
+				break;
 
 while True:
 
