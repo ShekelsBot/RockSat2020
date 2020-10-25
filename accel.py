@@ -9,8 +9,6 @@ import adafruit_adxl34x
 i2c = busio.I2C(board.SCL, board.SDA)
 accelerometer = adafruit_adxl34x.ADXL345(i2c)
 
-accelerometer.enable_motion_detection()
-
 def write(allAxis): #die temp file SENSOR 1
     with open("/home/pi/data/acceltest.csv", "a") as log:
         log.write("{0},{1},{2},{3},{4}\n".format(strftime("%Y-%m-%d %H:%M:%S"),"Acel",str(xAxis),str(yAxis),str(zAxis)))
