@@ -1,11 +1,19 @@
 # Andrew Bruckbauer
 # 8/18/2020
-# Temperature Sensor Module
-# Purpose of the code is to create a temp sensor
+# Main Telelmetry model
+# Combines all previous iterations of code from the repository to create one module.
+# https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 # https://learn.adafruit.com/tmp006-temperature-sensor-python-library/software
-# TMP006 Adafruit Module
+# https://learn.adafruit.com/adafruit-vl53l0x-micro-lidar-distance-sensor-breakout/python-circuitpython
+# https://piguide.dev/2019/05/27/raspberry-pi-accelerometer-using-the-adxl345.html
+# https://circuitpython.readthedocs.io/projects/motorkit/en/latest/
+# https://learn.adafruit.com/i2c-addresses/the-list
 
-#from time import sleep, strftime, time
+# TMP006 Adafruit Module
+# vl53l0x Distance Sesnor
+# adxl34x Accelerometer
+# Adafruit Motor Hat
+
 import time
 from time import strftime
 import board
@@ -34,6 +42,7 @@ accelerometer = adafruit_adxl34x.ADXL345(i2c)
 def TempConversion(c):
     return c * 9.0 / 5.0 + 32
 
+# Function to write data to a .csv file for graphing
 def write_sensors(die_1): 
     with open("/home/pi/data/Telemetry.csv", "a") as log:
         log.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17}\n"
@@ -52,7 +61,9 @@ sensor_2 = TMP006.TMP006(address=0x41, busnum =1) # change 3v to ad0
 # Initilize both Temp Sensors
 sensor.begin()
 sensor_2.begin() 
+
 # Loop printing measurements every second.
+# Tell where stuff is being stored
 print ('Press Ctrl-C to quit.')
 print ('Storing data /home/pi/data')
 print ('Temperature is in Fahrenheit')
@@ -86,7 +97,7 @@ with picamera.PiCamera() as camera:
                 print('WARNING: Low space!')
                 break;
 """
-
+# Main loop
 while True:
 
     # Variable Juggling for Temp Sensor 1
@@ -109,6 +120,7 @@ while True:
     yAxis = "Y:" + str(round(accelerometer.acceleration[1],1))
     zAxis = "Z:" + str(round(accelerometer.acceleration[2],1))
 
+    # Print statements for the main sensors 
     print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp, TempConversion(obj_temp)))
     print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp2, TempConversion(obj_temp2)))
     print("Range: {0}mm".format(vl53.range))
@@ -122,7 +134,7 @@ while True:
         a = item[0] + str(round(item[1],1))
         allAxis += a + "\n"
     print (allAxis)
-    #time.sleep(1)
+
     # Write data
     write_sensors(die_1)
     time.sleep(1)
