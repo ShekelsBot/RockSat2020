@@ -9,6 +9,9 @@
 # https://circuitpython.readthedocs.io/projects/motorkit/en/latest/
 # https://learn.adafruit.com/i2c-addresses/the-list
 
+# pip3 install picamera
+# pip3 install psutil
+
 # TMP006 Adafruit Module
 # vl53l0x Distance Sesnor
 # adxl34x Accelerometer
