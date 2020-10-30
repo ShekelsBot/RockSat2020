@@ -30,3 +30,10 @@ while True:
     elif throttle in ['r','reverse']:
         kit.motor3.throttle = -1
         print ('motor is in reverse')
+    #elif (throttle > 1 or throttle < -1):
+    #    print(throttle)
+    #    print("Invalid input - throttle can only be -1 to 1.")
+    elif throttle.isdigit():
+        converted_throttle = int(float(throttle))
+        kit.motor3.throttle = converted_throttle
+        print("Throttle is "+throttle+".")
