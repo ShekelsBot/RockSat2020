@@ -2,6 +2,8 @@
 # 8/18/2020
 # Main Telelmetry model
 # Combines all previous iterations of code from the repository to create one module.
+
+# Documentation on sensors
 # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
 # https://learn.adafruit.com/tmp006-temperature-sensor-python-library/software
 # https://learn.adafruit.com/adafruit-vl53l0x-micro-lidar-distance-sensor-breakout/python-circuitpython
@@ -12,10 +14,18 @@
 # pip3 install picamera
 # pip3 install psutil
 
+# mkdir videos
+# mkdir data
+
+# Serial Connection Documentation
+# https://www.engineersgarage.com/raspberrypi/articles-raspberry-pi-serial-communication-uart-protocol-ttl-port-usb-serial-boards/
+# https://www.devdungeon.com/content/how-connect-serial-console
+
 # TMP006 Adafruit Module
 # vl53l0x Distance Sesnor
 # adxl34x Accelerometer
 # Adafruit Motor Hat
+# Pi Camera
 
 import time
 from time import strftime
