@@ -11,7 +11,7 @@ import Adafruit_TMP.TMP006 as TMP006
 
 # Define serial port
 ser = serial.Serial(
-        port='/dev/ttyAMA0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
+        port='/dev/ttyS0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
         baudrate = 9600,
         parity=serial.PARITY_NONE,
         stopbits=serial.STOPBITS_ONE,
@@ -33,17 +33,22 @@ sensor = TMP006.TMP006(address=0x40, busnum=1)
 sensor.begin()
 
 # Loop printing measurements every second.
-print ('Press Ctrl-C to quit.')
-while True:
+ser.write(b'Press Ctrl-C to quit. \n')
+counter = 0
+while 1:
     obj_temp = sensor.readObjTempC()
     die_temp = sensor.readDieTempC()
     #reads object temp
-    print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp, TempConversion(obj_temp)))
+    #print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp, TempConversion(obj_temp)))
     #reads die temp
-    print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp, TempConversion(die_temp)))
-    time.sleep(1.0)
+    #print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die_temp, TempConversion(die_temp)))
+    #time.sleep(1.0)
 
     #Sends data over seial connection
-    ser.write("Serial Connection: OBJ temperature is: {0:0.3F}*C / {1:0.3F}*F".format(obj_temp, TempConversion(obj_temp)))
-    ser.write("Serial Connection: DIE temperature is: {0:0.3F}*C / {1:0.3F}*F".format(die_temp, TempConversion(die_temp)))
+    #ser.write("Serial Connection: OBJ temperature is: {0:0.3F}*C / {1:0.3F}*F".format(obj_temp, TempConversion(obj_temp)))
+    #ser.write("Serial Connection: DIE temperature is: {0:0.3F}*C / {1:0.3F}*F".format(die_temp, TempConversion(die_temp)))
+    #time.sleep(1)
+
+    ser.write(b'OBJ Tmp is %d \n'%(obj_temp))
     time.sleep(1)
+    counter += 1
