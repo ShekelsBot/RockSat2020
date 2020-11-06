@@ -19,6 +19,7 @@
 
 # Serial Connection Documentation
 # https://www.engineersgarage.com/raspberrypi/articles-raspberry-pi-serial-communication-uart-protocol-ttl-port-usb-serial-boards/
+# https://iot4beginners.com/how-to-read-and-write-from-serial-port-using-raspberry-pi/
 # https://www.devdungeon.com/content/how-connect-serial-console
 
 # TMP006 Adafruit Module
@@ -29,6 +30,7 @@
 
 import time
 from time import strftime
+import serial
 import board
 import busio
 import Adafruit_TMP.TMP006 as TMP006
@@ -50,6 +52,16 @@ file_root = "/home/pi/videos/"
 i2c = busio.I2C(board.SCL, board.SDA)
 vl53 = adafruit_vl53l0x.VL53L0X(i2c)
 accelerometer = adafruit_adxl34x.ADXL345(i2c)
+
+# Define serial port
+ser = serial.Serial(
+        port='/dev/ttyS0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
+        baudrate = 9600,
+        parity=serial.PARITY_NONE,
+        stopbits=serial.STOPBITS_ONE,
+        bytesize=serial.EIGHTBITS,
+        timeout=1
+)
 
 # Function to convert celsius (c) to fahrenhiet.
 def TempConversion(c):
@@ -129,15 +141,22 @@ while True:
     distance = vl53.range
 
     # Parse tuple for various axis
-    xAxis = "X:" + str(round(accelerometer.acceleration[0],1))
-    yAxis = "Y:" + str(round(accelerometer.acceleration[1],1))
-    zAxis = "Z:" + str(round(accelerometer.acceleration[2],1))
+    xAxis = (round(accelerometer.acceleration[0],1))
+    yAxis = (round(accelerometer.acceleration[1],1))
+    zAxis = (round(accelerometer.acceleration[2],1))
 
     # Print statements for the main sensors 
     print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp, TempConversion(obj_temp)))
     print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj_temp2, TempConversion(obj_temp2)))
-    print("Range: {0}mm".format(vl53.range))
+    print ("Range: {0}mm".format(vl53.range))
     
+    ser.write (b'Sensor 1 Temperature: %d \n'%round(obj_temp))
+    ser.write (b'Sensor 2 Temperature: %d \n'%round(obj_temp2))
+    ser.write (b'Range: %d '%(vl53.range)+b' mm \n')
+    ser.write (b'X Axis: %d \n'%(xAxis))
+    ser.write (b'Y Axis: %d \n'%(yAxis))
+    ser.write (b'Z Axis: %d \n'%(zAxis))
+
     # Clean up and format the reading
     # Create indivudal strngs from tuple data
     allAxis = ""
