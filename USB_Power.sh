@@ -11,13 +11,15 @@
 DATE=$(date +%C%y%m%d)
 #Get current date format in Century Year Month Day
 #Corresponds to specific folder name
+umount /mnt/usb-drive
 cd uhubctl
 uhubctl -a off -l 1-1
 #Turn off power to the USB 2.0 Ports
-sleep 5
+sleep 3
 echo "Turning on power to USB Ports"
 uhubctl -a on -l 1-1
 #Turn power back on the USB Ports
+sleep 2
 echo "Mounting Camera"
 mount -a
 echo "Camera is mounted under /media/usb-drive/"
