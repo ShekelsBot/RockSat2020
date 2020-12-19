@@ -19,13 +19,7 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 GPIO.setup(pin, GPIO.OUT)
 
-print("Setting to Record.")
-GPIO.output(pin, GPIO.HIGH)
-time.sleep(set_mode_seconds)
-GPIO.output(pin, GPIO.LOW)
-
-time.sleep(time_delay1)
-
+#Recording set
 print("Recording On.")
 GPIO.output(pin, GPIO.HIGH)
 time.sleep(record_on_seconds)
@@ -33,3 +27,8 @@ GPIO.output(pin, GPIO.LOW)
 
 #Time to record:
 time.sleep(record_time_seconds)
+
+print("Recording Off.")
+GPIO.output(pin, GPIO.HIGH)
+time.sleep(record_on_seconds)
+GPIO.output(pin, GPIO.LOW)

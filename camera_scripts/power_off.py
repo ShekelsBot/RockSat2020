@@ -17,20 +17,7 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 GPIO.setup(pin, GPIO.OUT)
 
-print("Recording Off.")
-GPIO.output(pin, GPIO.HIGH)
-time.sleep(record_on_seconds)
-GPIO.output(pin, GPIO.LOW)
-
-time.sleep(time_delay1)
-"""
-print("Setting to Default.")
-GPIO.output(pin, GPIO.HIGH)
-time.sleep(set_mode_seconds)
-GPIO.output(pin, GPIO.LOW)
-
-time.sleep(time_delay1)
-"""
+#Power off set
 print("Turning Off.")
 GPIO.output(pin, GPIO.HIGH)
 time.sleep(power_off_seconds)
