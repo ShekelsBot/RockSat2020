@@ -4,16 +4,13 @@ mkdir videos
 mkdir data
 apt-get update
 apt-get upgrade -y
-# Check if -y
 apt-get install python3-pip
-# Check if it needs a -y
 pip3 install --upgrade setuptools -y
 apt-get install -y python3 git python3-pip
 apt-get install python3-dev python3-pip python3-smbus i2c-tools -y
+apt-get install libusb-1.0-0-dev -y
 # update-alternatives --config python
-# Check if it needs a -y
 pip3 install RPI.GPIO 
-#input command -y
 pip3 install adafruit-blinka
 # Install TMP006
 apt-get install build-essential python-dev python-pip python-smbus git
