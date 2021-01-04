@@ -1,6 +1,7 @@
 #!/bin/bash
 # Purpose of this is to mount and turn off power to USB ports so the camera can record
 # Then transfer data once it has finished recording
+#!/bin/bash
 # 
 # Script uses Uhubctl
 # Needs the drive to mount based on UUID
