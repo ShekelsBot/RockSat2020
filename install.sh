@@ -1,3 +1,4 @@
+#!/bin/bash
 # Installer 2.0
 cd /home/pi
 mkdir videos
@@ -5,8 +6,12 @@ mkdir data
 apt-get update
 apt-get upgrade -y
 apt-get install python3-pip
-pip3 install --upgrade setuptools -y
+pip3 install --upgrade setuptools
 apt-get install -y python3 git python3-pip
+#Set Python 3 to default
+sudo update-alternatives --install /usr/bin/python python $(which python2) 1
+sudo update-alternatives --install /usr/bin/python python $(which python3) 2
+#i2c Tools
 apt-get install python3-dev python3-pip python3-smbus i2c-tools -y
 apt-get install libusb-1.0-0-dev -y
 # update-alternatives --config python
