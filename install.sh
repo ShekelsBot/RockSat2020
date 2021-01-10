@@ -3,6 +3,7 @@
 cd /home/pi
 mkdir videos
 mkdir data
+mkdir /mnt/usb-drive
 apt-get update
 apt-get upgrade -y
 apt-get install python3-pip
