@@ -1,5 +1,8 @@
 # Andrew Bruckbauer
-# 
+# 1/8/2021
+# Main Control script for timing events
+# Set up to use 3 push buttons for 3 seperate events
+
 from time import sleep
 import RPi.GPIO as GPIO
 import board
