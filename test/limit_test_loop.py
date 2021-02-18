@@ -1,5 +1,3 @@
-# Andrew Bruckbauer
-# 
 from time import sleep
 import RPi.GPIO as GPIO
 import board
@@ -9,11 +7,9 @@ GPIO.setmode(GPIO.BCM)
 
 kit = MotorKit(i2c=board.I2C())
 button1=18
-#Event 1
 button2=27
-#Event 2
 button3=22
-#Event 3
+
 limit_1=23
 #Arm closed switch
 limit_2=24
@@ -24,8 +20,18 @@ GPIO.setup(button2,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(button3,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(limit_1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(limit_2,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-print ("Program Started press buttons to simulate events")
+
 while (1):
+    
+    if GPIO.input(limit_2)==0:
+                            #kit.motor3.throttle = 0
+                            print ("Limit 2 pushed")
+                            sleep (.5)
+    if GPIO.input(limit_1)==0:
+                            #kit.motor3.throttle = 0
+                            print ("Limit 1 pushed")
+                            sleep (.5)
+
     if GPIO.input(button1)==0:
                     print ("Button 1 Pressed")
                     print ("Arm Extension")
@@ -60,6 +66,8 @@ while (1):
                                 subprocess.call("./camera_scripts/camera_control_off.sh", shell=True)
                             elif kit.motor3.throttle == 0:
                                 break
+
+                        #call other script
     if  GPIO.input(button3)==0:
                     print ("Button 3 Pressed")
                     print ("simulation shutdown event")
