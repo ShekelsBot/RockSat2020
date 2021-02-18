@@ -43,7 +43,7 @@ cd uhubctl
 make
 make install
 cd /home/pi
-mv RockSat2020/camera_scripts /home/pi
+mv RockSat2020_Bruckbauer/camera_scripts /home/pi
 echo "Installed"
 sleep 1
 echo "Remember to enable serial, i2c, spi, and pi-camera"
