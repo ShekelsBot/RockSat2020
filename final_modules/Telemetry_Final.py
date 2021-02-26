@@ -2,6 +2,7 @@
 # 12/11/2020
 # Telemetry Module 3.0
 # Combines all modules
+# Check DEF sensors for wiring
 
 # Documentation on sensors
 # https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
@@ -68,16 +69,32 @@ def write_sensors():
 
 def sensors():
     # Temperature Sensor 1
+    # VCC - RED - 3.5v
+    # GND - BLK - Ground
+    # SDA - YLW - SDA
+    # SCL - BRN - SCL
     sensor1 = TMP006.TMP006()
     sensor1 = TMP006.TMP006(address=0x40, busnum=1) # Default i2C address is 0x40 and bus is 1.
     sensor1.begin()
     # Temperature Sensor 2
+    # AD0 - RED - 3.5v
+    # GND - BLK - Ground
+    # SDA - YLW - SDA
+    # SCL - BRN - SCL
     sensor2 = TMP006.TMP006()
     sensor2 = TMP006.TMP006(address=0x41, busnum=1) #change 3v to ad0
     sensor2.begin()
     # Accelerometer Sensor
+    # 3v3 - RED - 3.5v
+    # GND - BLK - Ground
+    # SDA - YLW - SDA
+    # SCL - BRN - SCL
     accelerometer = adafruit_adxl34x.ADXL345(i2c)
     # Distance Sensor
+    # VIN - RED - 3.5v
+    # GND - BLK - Ground
+    # SDA - YLW - SDA
+    # SCL - BRN - SCL
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
 
     while True:
