@@ -3,7 +3,7 @@
 cd /home/pi
 mkdir videos
 mkdir data
-mkdir /mnt/usb-drive
+mkdir -p /mnt/usb-drive
 apt-get update
 apt-get upgrade -y
 apt-get install python3-pip
@@ -44,6 +44,11 @@ make
 make install
 cd /home/pi
 mv RockSat2020/camera_scripts /home/pi
+#give executable rights to camera scripts
+cd RockSat2020/camera_scripts
+chmod +x camera_control.sh
+chmod +x camera_control_off.sh
+chmod +x camera_control_on.sh
 echo "Installed"
 sleep 1
 echo "Remember to enable serial, i2c, spi, and pi-camera"

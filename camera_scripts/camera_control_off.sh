@@ -26,7 +26,7 @@ echo "Mounting Camera"
 sleep 5
 mount -a
 sleep 1
-echo "Camera is mounted under /media/usb-drive/"
+echo "Camera is mounted under /mnt/usb-drive/"
 cd /mnt/usb-drive/DCIM/$DATE
 #Navigate to Specifc directory
 #Use DATE value for specifc name of folder
