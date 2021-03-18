@@ -4,10 +4,12 @@ cd /home/pi
 mkdir videos
 mkdir data
 mkdir -p /mnt/usb-drive
+mkdir -p /mnt/usb
 apt-get update
 apt-get upgrade -y
 apt-get install python3-pip
-pip3 install --upgrade setuptools
+pip3 install --upgrade pip setuptools
+#pip3 install --upgrade setuptools
 apt-get install -y python3 git python3-pip
 #Set Python 3 to default
 sudo update-alternatives --install /usr/bin/python python $(which python2) 1
@@ -43,9 +45,10 @@ cd uhubctl
 make
 make install
 cd /home/pi
-mv RockSat2020/camera_scripts /home/pi
+mv RockSat2020_Bruckbauer/camera_scripts /home/pi
+mv RockSat2020_Bruckbauer/control_2.py /home/pi
 #give executable rights to camera scripts
-cd RockSat2020/camera_scripts
+cd camera_scripts/
 chmod +x camera_control.sh
 chmod +x camera_control_off.sh
 chmod +x camera_control_on.sh
