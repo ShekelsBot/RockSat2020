@@ -4,6 +4,7 @@
 # Main Control Script using Switch
 # Save Function
 # https://www.raspberrypi.org/forums/viewtopic.php?p=312604
+# https://www.journaldev.com/15638/python-pickle-example
 from time import sleep
 import RPi.GPIO as GPIO
 import board
@@ -14,16 +15,11 @@ import pickle
 GPIO.setmode(GPIO.BCM)
 
 kit = MotorKit(i2c=board.I2C())
-button1=18
-#Event 1
-button2=27
-#Event 2
-button3=22
-#Event 3
-limit_1=23
-#Arm open
-limit_2=24
-#Arm closed
+button1=18 #Event 1
+button2=27 #Event 2
+button3=22 #Event 3
+limit_1=23 #Arm open
+limit_2=24 #Arm closed
 
 GPIO.setup(button1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(button2,GPIO.IN,pull_up_down=GPIO.PUD_UP)
@@ -31,58 +27,56 @@ GPIO.setup(button3,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(limit_1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(limit_2,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 
-filename = 'save_state'
+filename = 'save_state' #Name of the hex dump
 
-def dump():
-    data = []
-    raw = current_state 
-    data.append(raw)
-    file = open ('save_state', 'wb')
-    pickle.dump(data,file)
-    file.close
+def dump(): #Save state
+    data = [] #data array
+    raw = current_state #holder value
+    data.append(raw) #add current_state to data array
+    file = open ('save_state', 'wb') #open file for writing
+    pickle.dump(data,file) #dump information to file
+    file.close #close file
 
-def load():
-    file = open('save_state', 'rb')
-    global data
-    data = pickle.load(file)
-    file.close()
+def load(): #Load State
+    file = open('save_state', 'rb') #open file
+    global data #global decleration for other functions
+    data = pickle.load(file) #dump infomration to function
+    file.close() #close file
 
 def counter():
-    cnt = 0
-    for item in data:
-        print('The save state is : ', item)
-        cnt += 1
+    cnt = 0 #iteration variable
+    for item in data: #parshing loop
+        print('The save state is :', item)
+        cnt += 1 
 
-def state1():
+def state1(): 
         print ("Button 1 Pressed")
         print ("Arm Extension")
         sleep (.1)
-        if GPIO.input(limit_2)==1:
-            kit.motor3.throttle = 1
-            sleep (1)
-            while kit.motor3.throttle == 1:
-                if GPIO.input(limit_2)==0:
-                    kit.motor3.throttle = 0
+        if GPIO.input(limit_2)==1: #Listen for button press
+            kit.motor3.throttle = 1 #Throttle forward
+            sleep (1) #Pause for limit to set
+            while kit.motor3.throttle == 1: 
+                if GPIO.input(limit_2)==0: #Listen for LIMIT_1 press
+                    kit.motor3.throttle = 0 #Stop throttle
                     print ("Starting Camera Script RECORD")
                     sleep (.5)
                     subprocess.call("./camera_scripts/camera_control_on.sh", shell=True)
-                    print ("Event 1 End")
-                    #call other script
-                    break
+                    print ("Event 1 End") #call other script
                 elif kit.motor3.throttle == 0:
                     break
 
 def state2():
         print ("Button 2 Pressed")
         print ("Arm Retraction")
-        #kit.motor3.throttle = -1
-        if GPIO.input(limit_1)==1:
-                kit.motor3.throttle = -1
-                sleep(.5)
+        sleep (.1)
+        if GPIO.input(limit_1)==1: #Listen for button press
+                kit.motor3.throttle = -1 #Reverse motor
+                sleep(1) #Pause for limit to set
                 print ("Camera data script TRANSFER")
-                while kit.motor3.throttle == -1:
-                    if GPIO.input(limit_1)==0:
-                        kit.motor3.throttle = 0
+                while kit.motor3.throttle == -1: 
+                    if GPIO.input(limit_1)==0: #Listen for LIMIT_2 press
+                        kit.motor3.throttle = 0 #Stop throttle
                         print ("Arm Closesd")
                         print ("Starting Camera Scripts")
                         subprocess.call("./camera_scripts/camera_control_off.sh", shell=True)
@@ -93,7 +87,7 @@ def state2():
 def state3():
     print ("Button 3 Pressed")
     print ("simulation shutdown event")
-    kit.motor3.throttle = 0
+    kit.motor3.throttle = 0 #Set throttle to zero
     #Turn off raspberry pi
     sleep(.5)
     exit
@@ -126,6 +120,8 @@ while (1):
         counter()
         state3()
         break
-print("State = ",current_state)
-# Pause
-sleep(1)
+    '''
+    else:
+        print ("Save is larger than 0" ,holder)
+        break
+    '''
