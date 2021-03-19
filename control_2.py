@@ -9,6 +9,8 @@ import RPi.GPIO as GPIO
 import board
 import subprocess
 from adafruit_motorkit import MotorKit
+import pickle
+
 GPIO.setmode(GPIO.BCM)
 
 kit = MotorKit(i2c=board.I2C())
@@ -22,14 +24,34 @@ limit_1=23
 #Arm open
 limit_2=24
 #Arm closed
-state = 0
 
 GPIO.setup(button1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(button2,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(button3,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(limit_1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(limit_2,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-print ("Controler 2.0: Program Started press buttons to simulate events.")
+
+filename = 'save_state'
+
+def dump():
+    data = []
+    raw = current_state 
+    data.append(raw)
+    file = open ('save_state', 'wb')
+    pickle.dump(data,file)
+    file.close
+
+def load():
+    file = open('save_state', 'rb')
+    global data
+    data = pickle.load(file)
+    file.close()
+
+def counter():
+    cnt = 0
+    for item in data:
+        print('The save state is : ', item)
+        cnt += 1
 
 def state1():
         print ("Button 1 Pressed")
@@ -76,19 +98,34 @@ def state3():
     sleep(.5)
     exit
 
+load()
+print ("Controler 2.0: Program Started press buttons to simulate events.")
+print ("Save State Test Script")
+counter()
+
 while (1):
-    if (GPIO.input(button1)==0 or state == 1):
-        state=1
+    if (GPIO.input(button1)==0):
+        current_state = 1
+
+        dump()
+        load()
+        counter()
         state1()
-        state=0
-    if (GPIO.input(button2)==0 or state == 2):
-        state=2
+    if (GPIO.input(button2)==0):
+        current_state = 2
+
+        dump()
+        load()
+        counter()
         state2()
-        state=0
-    if (GPIO.input(button3)==0 or state == 3):
-        state=3
+    if (GPIO.input(button3)==0):
+        current_state = 3
+
+        dump()
+        load()
+        counter()
         state3()
         break
-print("State = ",state)
+print("State = ",current_state)
 # Pause
 sleep(1)
