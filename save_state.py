@@ -3,17 +3,11 @@
 # 3/10/2021
 import pickle
 
-# take user input to take the amount of data
-#number_of_data = int(input('Enter the number of data : '))
+#array holder for state
 current_state = []
 
 # take input of the data
-'''
-for i in range(number_of_data):
-    raw = input('Enter a save sate '+str(i)+' : ')
-    current_state.append(raw)
-'''
-raw = int(input('Enter a save sate  '))
+raw = int(input('Enter a save sate: '))
 current_state.append(raw)
 
 # open a file, where you ant to store the data

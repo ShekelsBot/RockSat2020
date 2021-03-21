@@ -45,9 +45,15 @@ def load(): #Load State
 
 def counter():
     cnt = 0 #iteration variable
+    global item
     for item in data: #parshing loop
         print('The save state is :', item)
         cnt += 1 
+
+def stater():
+    dump()
+    load()
+    counter()
 
 def state1(): 
         print ("Button 1 Pressed")
@@ -98,30 +104,68 @@ print ("Save State Test Script")
 counter()
 
 while (1):
-    if (GPIO.input(button1)==0):
-        current_state = 1
-
+    if item == 0:
+        while (1):
+            if (GPIO.input(button1)==0):
+                current_state = 1
+                stater()
+                state1()
+            if (GPIO.input(button2)==0):
+                current_state = 2
+                stater()
+                state2()
+            if (GPIO.input(button3)==0):
+                current_state = 3
+                stater()
+                state3()
+                current_state = 4
+                stater()
+                break
+    elif item == 1:
+        while (1):
+            if (item == 1):
+                current_state = 2
+                stater()
+                state1()
+            if (GPIO.input(button2)==0):
+                current_state = 2
+                stater()
+                state2()
+            if (GPIO.input(button3)==0):
+                current_state = 3
+                stater()
+                state3()
+                current_state = 4
+                stater()
+                break
+    elif item == 2:
+        while (1):
+            if (item == 2):
+                current_state = 3
+                stater()
+                state2()
+            if (GPIO.input(button3)==0):
+                current_state = 3
+                stater()
+                state3()
+                current_state = 4
+                stater()
+                break
+    elif item == 3:
+        while (1):
+            if (item == 3):
+                current_state = 3
+                stater()
+                state3()
+                current_state = 4
+                stater()
+                break
+    elif item == 4:
+        current_state = 0
         dump()
         load()
-        counter()
-        state1()
-    if (GPIO.input(button2)==0):
-        current_state = 2
-
-        dump()
-        load()
-        counter()
-        state2()
-    if (GPIO.input(button3)==0):
-        current_state = 3
-
-        dump()
-        load()
-        counter()
-        state3()
+        print ("Save state reset",item)
         break
-    '''
     else:
-        print ("Save is larger than 0" ,holder)
+        print ("greater than 4",item)
         break
-    '''
