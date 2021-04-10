@@ -4,7 +4,7 @@ cd /home/pi
 mkdir videos
 mkdir data
 mkdir -p /mnt/usb-drive
-mkdir -p /mnt/usb
+#Make it mount directly to /mnt/usb-drive
 apt-get update
 apt-get upgrade -y
 apt-get install python3-pip
@@ -44,9 +44,15 @@ sleep 2
 cd uhubctl
 make
 make install
-cd /home/pi
-mv RockSat2020_Bruckbauer/camera_scripts /home/pi
-mv RockSat2020_Bruckbauer/control_2.py /home/pi
+cd ..
+mv RockSat2020_Bruckbauer/camera_scripts /home/pi/camera_scripts
+mv RockSat2020_Bruckbauer/control_2.py /home/pi/control_2.py
+mv RockSat2020_Bruckbauer/save_state.py /home/pi/save_state.py
+mv RockSat2020_Bruckbauer/save_creator.py /home/pi/save_creator.py
+#load inital save_state to 0
+python save_creator.py
+#remove save_creator
+rm -f save_creator.py
 #give executable rights to camera scripts
 cd camera_scripts/
 chmod +x camera_control.sh
