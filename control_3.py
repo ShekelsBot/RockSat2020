@@ -14,6 +14,7 @@ GPIO.setmode(GPIO.BCM)
 kit = MotorKit(i2c=board.I2C())
 
 button1=18 
+GPIO.setup(button1,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
 
 while (1):
     while (GPIO.input(button1)==1):
