@@ -12,7 +12,7 @@
 """
 
 # Import dependencies
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
 import configparser
 import os
 import time
@@ -22,11 +22,11 @@ config = configparser.ConfigParser()
 config.read('./config.ini')
 
 pin = int(config['usbcamctl']['pin'])
-poweron_delay = int(config['usbcamctl']['poweron_delay'])
-setmode_delay = int(config['usbcamctl']['setmode_delay'])
-recordon_delay = int(config['usbcamctl']['recordon_delay'])
-poweroff_delay = int(config['usbcamctl']['poweroff_delay'])
-recordoff_delay = int(config['usbcamctl']['recordoff_delay'])
+poweron_delay = float(config['usbcamctl']['poweron_delay'])
+setmode_delay = float(config['usbcamctl']['setmode_delay'])
+recordon_delay = float(config['usbcamctl']['recordon_delay'])
+poweroff_delay = float(config['usbcamctl']['poweroff_delay'])
+recordoff_delay = float(config['usbcamctl']['recordoff_delay'])
 
 # Setup GPIO
 GPIO.setmode(GPIO.BOARD)
