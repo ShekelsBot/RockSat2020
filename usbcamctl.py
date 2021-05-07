@@ -17,11 +17,6 @@ import configparser
 import os
 import time
 
-# Setup GPIO
-GPIO.setmode(GPIO.BOARD)
-GPIO.setwarnings(False)
-GPIO.setup(pin, GPIO.OUT)
-
 # Load configuration from config.ini
 config = configparser.ConfigParser()
 config.read('./config.ini')
@@ -32,6 +27,11 @@ setmode_delay = config['usbcamctl']['setmode_delay']
 recordon_delay = config['usbcamctl']['recordon_delay']
 poweroff_delay = config['usbcamctl']['poweroff_delay']
 recordoff_delay = config['usbcamctl']['recordoff_delay']
+
+# Setup GPIO
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
+GPIO.setup(pin, GPIO.OUT)
 
 # Control the camera's powered state from the USB port (uhubctl, then GPIO)
 def power(mode):
