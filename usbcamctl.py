@@ -12,7 +12,7 @@
 """
 
 # Import dependencies
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import configparser
 import os
 import time
