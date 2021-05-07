@@ -37,7 +37,7 @@ recordoff_delay = config['usbcamctl']['recordoff_delay']
 def power(mode):
     try:
         if mode:
-            os.system('uhubctl -a off -l 1-1')
+            os.system('sudo uhubctl -a off -l 1-1')
             time.sleep(3)
         GPIO.output(pin, GPIO.HIGH)
         time.sleep(poweron_delay if mode else poweroff_delay)
