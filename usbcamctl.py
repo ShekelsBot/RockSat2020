@@ -47,7 +47,6 @@ def power(mode):
 def usb(mode):
     try:
         os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1')
-        time.sleep(3)
         return True
     except:
         return False
@@ -56,7 +55,7 @@ def usb(mode):
 def toggleRecord():
     try:
         GPIO.output(pin, GPIO.HIGH)
-        time.sleep(record_on_seconds)
+        time.sleep(recordon_delay)
         GPIO.output(pin, GPIO.LOW)
         return True
     except:
