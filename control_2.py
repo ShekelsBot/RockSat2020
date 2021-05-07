@@ -51,9 +51,9 @@ def counter():
         cnt += 1 
 
 def stater():
-    dump()
-    load()
-    counter()
+    dump() #Call data dump
+    load() #Call load state
+    counter() #Call counter varaible +1 to varabile
 
 def state1(): 
         print ("Button 1 Pressed")
@@ -104,16 +104,16 @@ print ("Save State Test Script")
 counter()
 
 while (1):
-    if item == 0:
-        while (1):
-            if (GPIO.input(button1)==0):
-                current_state = 1
-                stater()
-                state1()
+    if item == 0: #Save state 
+        while (1): # Always run
+            if (GPIO.input(button1)==0):# Listen for button press
+                current_state = 1 # Save state
+                stater() # update state
+                state1() # State 1
             if (GPIO.input(button2)==0):
-                current_state = 2
+                current_state = 2 # Save state 2
                 stater()
-                state2()
+                state2() # Call state 2
             if (GPIO.input(button3)==0):
                 current_state = 3
                 stater()
