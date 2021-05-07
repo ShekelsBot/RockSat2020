@@ -4,19 +4,12 @@ Create a virtual reality camera apparatus and record 360 degree video of the ROc
 
 ## Scripts:
 
-
-### Andrew
-Script | Description
------------- | -------------
-save_state.py | This script is for manually testing Save States
-save_creator.py | Creates save state incase of power loss
-telemetry.py |
-control_2.py |
-control_3.py |
-
-
-### Konstantin
-Script | Description
------------- | ------------- 
-logger.py | Logs errors, information messages to Terminal and Logfile since Mission Time
-usbcamctl.py | Camera controll Module
+Script | Contributer | Description
+------------ | ------------- | -------------
+save_state.py | Andrew | This script is for manually testing Save States
+save_creator.py | Andrew | Creates save state incase of power loss
+telemetry.py | Andrew | 
+control_2.py | Andrew | 
+control_3.py | Andrew | 
+logger.py | Konstantin | Logs errors, and information messages to Terminal and Logfile
+usbcamctl.py | Konstantin | Camera control Module
