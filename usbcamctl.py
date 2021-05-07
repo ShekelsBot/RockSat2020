@@ -21,12 +21,12 @@ import time
 config = configparser.ConfigParser()
 config.read('./config.ini')
 
-pin = config['usbcamctl']['pin']
-poweron_delay = config['usbcamctl']['poweron_delay']
-setmode_delay = config['usbcamctl']['setmode_delay']
-recordon_delay = config['usbcamctl']['recordon_delay']
-poweroff_delay = config['usbcamctl']['poweroff_delay']
-recordoff_delay = config['usbcamctl']['recordoff_delay']
+pin = int(config['usbcamctl']['pin'])
+poweron_delay = int(config['usbcamctl']['poweron_delay'])
+setmode_delay = int(config['usbcamctl']['setmode_delay'])
+recordon_delay = int(config['usbcamctl']['recordon_delay'])
+poweroff_delay = int(config['usbcamctl']['poweroff_delay'])
+recordoff_delay = int(config['usbcamctl']['recordoff_delay'])
 
 # Setup GPIO
 GPIO.setmode(GPIO.BOARD)
