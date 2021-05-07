@@ -1,6 +1,6 @@
 # RockSat2020 V.R.S.E (Virtual Reality Space Experience) Project Group
 
-Create a virtual reality camera apparatus and record 360 degree video of the ROckSat-X 2020 sub-orbital flight for NASA's Education and Outreach program
+Create a virtual reality camera apparatus and record 360 degree video of the RockSat-X 2020 sub-orbital flight for NASA's Education and Outreach program
 
 ## Scripts:
 
