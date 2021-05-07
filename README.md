@@ -1,8 +1,8 @@
 # RockSat2020 V.R.S.E (Virtual Reality Space Experience) Project Group
 
-# Scripts:
+## Scripts:
 
-Andrew
+### Andrew
 
 save_state.py
 
@@ -19,7 +19,7 @@ control_2.py
 control_3.py
 
 
-Konstitine 
+### Konstitine 
 
 logger.py
 
