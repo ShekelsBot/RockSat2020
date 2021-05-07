@@ -36,15 +36,21 @@ GPIO.setup(pin, GPIO.OUT)
 # Control the camera's powered state from the USB port (uhubctl, then GPIO)
 def power(mode):
     try:
-        if mode:
-            os.system('sudo uhubctl -a off -l 1-1')
-            time.sleep(3)
         GPIO.output(pin, GPIO.HIGH)
         time.sleep(poweron_delay if mode else poweroff_delay)
         GPIO.output(pin, GPIO.LOW)
-        return true
+        return True
     except:
-        return false
+        return False
+
+# Control the USB ports on the pi
+def usb(mode):
+    try:
+        os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1')
+        time.sleep(3)
+        return True
+    except:
+        return False
 
 # Control the camera's recording state (GPIO)
 def toggleRecord():
@@ -52,6 +58,6 @@ def toggleRecord():
         GPIO.output(pin, GPIO.HIGH)
         time.sleep(record_on_seconds)
         GPIO.output(pin, GPIO.LOW)
-        return true
+        return True
     except:
-        return false
+        return False
