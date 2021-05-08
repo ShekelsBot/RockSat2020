@@ -4,7 +4,7 @@ Create a virtual reality camera apparatus and record 360 degree video of the Roc
 
 ## Scripts:
 
-Script | Contributer | Description
+Script | Contributor(s) | Description
 ------------ | ------------- | -------------
 save_state.py | Andrew | This script is for manually testing Save States
 save_creator.py | Andrew | Creates save state incase of power loss
