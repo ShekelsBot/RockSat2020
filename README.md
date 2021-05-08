@@ -9,7 +9,7 @@ Script | Contributor(s) | Description
 save_state.py | Andrew | This script is for manually testing Save States
 save_creator.py | Andrew | Creates save state incase of power loss
 telemetry.py | Andrew | 
-control_2.py | Andrew | Testing?
+control_2.py | Andrew | Testing fuctions - buttons
 control_3.py | Andrew | Flight Ready
 logger.py | Konstantin | Logs errors, and information messages to Terminal and Logfile
 usbcamctl.py | Konstantin | Camera control Module
