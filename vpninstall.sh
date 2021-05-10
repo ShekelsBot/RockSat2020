@@ -20,8 +20,11 @@ sudo dpkg -i logmein-hamachi_2.1.0.203-1_armhf.deb
 
 # Enable service
 echo "  Enabling Hamachi service"
+sleep 5
 sudo systemctl enable logmein-hamachi.service
+sleep 10
 sudo systemctl start logmein-hamachi.service
+sleep 10
 
 # Login 
 echo "  Configuring Hamachi (Push enter for password)"
