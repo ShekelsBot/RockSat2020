@@ -7,6 +7,8 @@
 #    Konstantin Zaremski
 #
 
+cd ~
+
 # Display a nice banner
 echo " "
 echo "  // V.R.S.E (Virtual Reality Space Experience \\\\"
