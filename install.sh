@@ -43,9 +43,9 @@ git clone git@github.com:ShekelsBot/RockSat2020.git
 
 # Create output directories
 echo "    Creating 'data', 'videos', and 'logs' directories"
-mkdir -p ./RockSat2020/data
-mkdir -p ./RockSat2020/videos
-mkdir -p ./RockSat2020/logs
+mkdir -p ~/RockSat2020/data
+mkdir -p ~/RockSat2020/videos
+mkdir -p ~/RockSat2020/logs
 
 # Setting Python 3 to the default runtime
 echo "    Setting Python v3.x to be the default Python runtime"

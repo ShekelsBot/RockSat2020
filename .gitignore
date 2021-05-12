@@ -1,8 +1,10 @@
 # Exclude Output Directories
-./videos
-./data
-./logs
+videos/
+data/
+logs/
 
 # Exclude python stuff
-./__pycache__
+__pycache__/
 
+# Exclude save state
+state
