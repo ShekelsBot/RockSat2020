@@ -13,7 +13,7 @@
 
 # Import dependencies
 import RPi.GPIO as GPIO
-import asyncio
+from time import sleep
 import configparser
 import os
 
@@ -34,32 +34,32 @@ GPIO.setwarnings(False)
 GPIO.setup(pin, GPIO.OUT)
 
 # Control the camera's powered state from the USB port (uhubctl, then GPIO)
-async def power(mode):
+def power(mode):
     try:
         GPIO.output(pin, GPIO.HIGH)
-        await asyncio.sleep(poweron_delay if mode else poweroff_delay)
+        sleep(poweron_delay if mode else poweroff_delay)
         GPIO.output(pin, GPIO.LOW)
-        await asyncio.sleep(3)
+        sleep(3)
         return True
     except:
         return False
 
 # Control the USB ports on the pi
-async def usb(mode):
+def usb(mode):
     try:
         output = os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1')
-        await asyncio.sleep(3)
+        sleep(3)
         return True
     except:
         return False
 
 # Control the camera's recording state (GPIO)
-async def toggleRecord():
+def toggleRecord():
     try:
         GPIO.output(pin, GPIO.HIGH)
-        await asyncio.sleep(recordon_delay)
+        sleep(recordon_delay)
         GPIO.output(pin, GPIO.LOW)
-        await asyncio.sleep(3)
+        sleep(3)
         return True
     except:
         return False

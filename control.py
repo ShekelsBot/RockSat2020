@@ -183,13 +183,13 @@ async def main(arguments):
             # Set up camera for recording 
             async def record():
                 recording = False
-                usbOff = await usbcamctl.usb(False)
+                usbOff = usbcamctl.usb(False)
                 if usbOff:
                     Log.out("  USB ports have been disabled.")
-                    camPower = await usbcamctl.power(True)
+                    camPower = usbcamctl.power(True)
                     if camPower:
                         Log.out("  Camera has been sent the power on signal via. GPIO.")
-                        recording = await usbcamctl.toggleRecord()
+                        recording = usbcamctl.toggleRecord()
                         if recording: Log.out("  Camera recording has been triggered via. GPIO.")
                         else: Log.out("  Failed to trigger camera recording.")
                     else: Log.out("  Failed to send camera power signal.")
