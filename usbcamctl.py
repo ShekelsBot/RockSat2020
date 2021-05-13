@@ -39,7 +39,7 @@ async def power(mode):
         GPIO.output(pin, GPIO.HIGH)
         await asyncio.sleep(poweron_delay if mode else poweroff_delay)
         GPIO.output(pin, GPIO.LOW)
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)
         return True
     except:
         return False
@@ -48,6 +48,7 @@ async def power(mode):
 async def usb(mode):
     try:
         output = os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1')
+        await asyncio.sleep(3)
         return True
     except:
         return False
@@ -58,7 +59,7 @@ async def toggleRecord():
         GPIO.output(pin, GPIO.HIGH)
         await asyncio.sleep(recordon_delay)
         GPIO.output(pin, GPIO.LOW)
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)
         return True
     except:
         return False
