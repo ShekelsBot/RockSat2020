@@ -260,4 +260,4 @@ async def main(arguments):
         os.system("sudo poweroff")
 
 # Entry point
-if __name__ == "__main__": asyncio.run(main(sys.argv().pop(0)))
+if __name__ == "__main__": asyncio.run(main(sys.argv.pop(0)))
