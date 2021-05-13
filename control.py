@@ -82,9 +82,9 @@ arm = kit.motor3
 def armExtended(): True if GPIO.input(EXTEND_LIMIT) == 0 else False
 def armRetracted(): True if GPIO.input(RETRACT_LIMIT) == 0 else False
 def TE(id):
-    if id == "R": True if (GPIO.input(TE_R) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_R) == 0 and not EXTERNAL_TRIGGER) else False
-    if id == "1": True if (GPIO.input(TE_1) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_1) == 0 and not EXTERNAL_TRIGGER) else False
-    if id == "2": True if (GPIO.input(TE_2) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_2) == 0 and not EXTERNAL_TRIGGER) else False
+    if id == "R": return True if (GPIO.input(TE_R) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_R) == 0 and not EXTERNAL_TRIGGER) else False
+    if id == "1": return True if (GPIO.input(TE_1) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_1) == 0 and not EXTERNAL_TRIGGER) else False
+    if id == "2": return True if (GPIO.input(TE_2) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_2) == 0 and not EXTERNAL_TRIGGER) else False
 
 # Extend arm motor control operations
 async def extendArm():
