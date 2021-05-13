@@ -133,6 +133,7 @@ async def main(arguments):
     if not os.path.isdir('logs'): os.system("mkdir logs")
 
     # Parse runtime arguments
+    testing = False
     if ("--test" in arguments):
         testing = "flatsat"
         if (arguments.index("--test") != len(arguments) - 1):
