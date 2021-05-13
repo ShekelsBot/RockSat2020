@@ -63,11 +63,11 @@ config = configparser.ConfigParser()
 config.read('./config.ini')
 
 # Configuration & setup tasks
-TE_R = float(config['pinout']['TimerEventR'])                  # Spacecraft Battery Bus Timer Event (TE-R)
-TE_1 = float(config['pinout']['TimerEvent1'])                  # Spacecraft Battery Bus Timer Event (TE-1)
-TE_2 = float(config['pinout']['TimerEvent2'])                  # Spacecraft Battery Bus Timer Event (TE-2)
-EXTEND_LIMIT = float(config['pinout']['ExtendLimitSwitch'])    # Arm Extension Limit Switch
-RETRACT_LIMIT = float(config['pinout']['RetractLimitSwitch'])  # Arm Retraction Limit Switch
+TE_R = int(config['pinout']['TimerEventR'])                  # Spacecraft Battery Bus Timer Event (TE-R)
+TE_1 = int(config['pinout']['TimerEvent1'])                  # Spacecraft Battery Bus Timer Event (TE-1)
+TE_2 = int(config['pinout']['TimerEvent2'])                  # Spacecraft Battery Bus Timer Event (TE-2)
+EXTEND_LIMIT = int(config['pinout']['ExtendLimitSwitch'])    # Arm Extension Limit Switch
+RETRACT_LIMIT = int(config['pinout']['RetractLimitSwitch'])  # Arm Retraction Limit Switch
 
 # Whether or not timer events are triggered by an external signal (flatsat, mission) or 
 EXTERNAL_TRIGGER = True
