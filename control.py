@@ -92,7 +92,7 @@ async def extendArm():
         # otherwise return True to signify extension
         if not armExtended():
             arm.throttle = 1
-            asyncio.sleep(1)
+            await asyncio.sleep(1)
             while arm.throttle == 1:
                 # Once extend limit is hit, set throttle to 0 and return True to signify extension
                 if armExtended():
@@ -108,7 +108,7 @@ async def retractArm():
         # otherwise return True to signify retraction
         if not armRetracted():
             arm.throttle = -1
-            asyncio.sleep(1)
+            await asyncio.sleep(1)
             while arm.throttle == -1:
                 # Once retract limit is hit, set throttle to 0 and return True to signify retraction
                 if armRetracted():
@@ -143,7 +143,7 @@ async def main(testing):
     
     # Disable motor throttle in case program crashed and was enabled
     arm.throttle = 0
-    asyncio.sleep(1)
+    await asyncio.sleep(1)
     
     # Load previous state
     currentState = await persist.read()
@@ -208,15 +208,15 @@ async def main(testing):
 
                 # Mount and tranfer files
                 os.system("sudo mkdir -p /mnt/usb")
-                asyncio.sleep(0.2)
+                await asyncio.sleep(0.2)
                 os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
-                asyncio.sleep(0.2)
+                await asyncio.sleep(0.2)
                 os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
-                asyncio.sleep(0.2)
+                await asyncio.sleep(0.2)
                 os.system("sync")
-                asyncio.sleep(0.2)
+                await asyncio.sleep(0.2)
                 os.system("sudo umount /dev/sda1")
-                asyncio.sleep(1)
+                await asyncio.sleep(1)
 
                 # Power off the camera 
                 camOff = await usbcamctl.power(False)

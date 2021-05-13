@@ -37,7 +37,7 @@ GPIO.setup(pin, GPIO.OUT)
 async def power(mode):
     try:
         GPIO.output(pin, GPIO.HIGH)
-        asyncio.sleep(poweron_delay if mode else poweroff_delay)
+        await asyncio.sleep(poweron_delay if mode else poweroff_delay)
         GPIO.output(pin, GPIO.LOW)
         return True
     except:
@@ -55,7 +55,7 @@ async def usb(mode):
 async def toggleRecord():
     try:
         GPIO.output(pin, GPIO.HIGH)
-        asyncio.sleep(recordon_delay)
+        await asyncio.sleep(recordon_delay)
         GPIO.output(pin, GPIO.LOW)
         return True
     except:
