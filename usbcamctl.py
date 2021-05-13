@@ -13,9 +13,9 @@
 
 # Import dependencies
 import RPi.GPIO as GPIO
+from time import sleep
 import configparser
 import os
-import time
 
 # Load configuration from config.ini
 config = configparser.ConfigParser()
@@ -29,7 +29,7 @@ poweroff_delay = float(config['usbcamctl']['poweroff_delay'])
 recordoff_delay = float(config['usbcamctl']['recordoff_delay'])
 
 # Setup GPIO
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 GPIO.setup(pin, GPIO.OUT)
 
@@ -37,8 +37,9 @@ GPIO.setup(pin, GPIO.OUT)
 def power(mode):
     try:
         GPIO.output(pin, GPIO.HIGH)
-        time.sleep(poweron_delay if mode else poweroff_delay)
+        sleep(poweron_delay if mode else poweroff_delay)
         GPIO.output(pin, GPIO.LOW)
+        sleep(3)
         return True
     except:
         return False
@@ -46,7 +47,8 @@ def power(mode):
 # Control the USB ports on the pi
 def usb(mode):
     try:
-        os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1')
+        output = os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1')
+        sleep(3)
         return True
     except:
         return False
@@ -55,8 +57,9 @@ def usb(mode):
 def toggleRecord():
     try:
         GPIO.output(pin, GPIO.HIGH)
-        time.sleep(recordon_delay)
+        sleep(recordon_delay)
         GPIO.output(pin, GPIO.LOW)
+        sleep(3)
         return True
     except:
         return False
