@@ -46,7 +46,7 @@ async def power(mode):
 # Control the USB ports on the pi
 async def usb(mode):
     try:
-        os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1')
+        output = os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1')
         return True
     except:
         return False

@@ -17,6 +17,14 @@
         Buttons                 $ python control.py --test buttons
         ** During any test routine shutdown is simulated.
 
+    Reset:
+        The control program can be reset using the '--reset' argument.
+        The reset argument clears any persisting save state so that operaiton
+        can be tested as if running for the first time.
+        $ python control.py --reset
+        Flags can be supplied together (optional):    
+        $ python control.py --reset --test
+
     Functionality:
         This program controls all VRSE functionality including arm extension
         and retraction, camera recording, and telemetry based on timer events
@@ -119,10 +127,17 @@ async def retractArm():
     except: return False
 
 # Main program method
-async def main(testing):
+async def main(arguments):
     if not os.path.isdir('data'): os.system("mkdir data")
     if not os.path.isdir('video'): os.system("mkdir video")
     if not os.path.isdir('logs'): os.system("mkdir logs")
+
+    # Parse runtime arguments
+    if ("--test" in arguments):
+        testing = "flatsat"
+        if (arguments.index("--test") != len(arguments) - 1):
+            testing = "buttons"
+    if ("--reset in arguments"): await persist.clear()
 
     operating = True
     
@@ -208,7 +223,7 @@ async def main(testing):
             Log.out(f"USB ports are {'now enabled' if usbOn else 'still disabled'}.")
 
             # Mount and tranfer files
-            os.system("sudo mkdir -p /mnt/usb")
+            if not os.path.isdir('/mnt/usb'): os.system("sudo mkdir -p /mnt/usb")
             await asyncio.sleep(0.2)
             os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
             await asyncio.sleep(0.2)
@@ -245,20 +260,4 @@ async def main(testing):
         os.system("sudo poweroff")
 
 # Entry point
-if __name__ == "__main__":
-    # Parse arguments
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "--test":
-            # If more than two arguments 
-            if len(sys.argv) > 2 and sys.argv[2] == "buttons":
-                print("MODE: TESTING with buttons")
-                asyncio.run(main("buttons"))
-            else:
-                print("MODE: TESTING FLATSAT")
-                asyncio.run(main("flatsat"))
-        else:
-            print("MODE: MISSION")
-            asyncio.run(main(None))
-    else:
-        print("MODE: MISSION")
-        asyncio.run(main(None))
+if __name__ == "__main__": asyncio.run(main(sys.argv().pop(0)))
