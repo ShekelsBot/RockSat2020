@@ -75,7 +75,8 @@ EXTERNAL_TRIGGER = True
 # Set GPIO mode
 GPIO.setmode(GPIO.BCM)
 # MotorKit class
-arm = MotorKit(i2c=board.I2C()).motor3
+kit = MotorKit(i2c=board.I2C())
+arm = kit.motor3
 
 # Shorthand
 def armExtended(): True if GPIO.input(EXTEND_LIMIT) == 0 else False
@@ -119,10 +120,12 @@ async def retractArm():
 
 # Main program method
 async def main(testing):
-    os.system("mkdir data")
-    os.system("mkdir video")
-    os.system("mkdir logs")
+    if not os.path.isdir('data'): os.system("mkdir data")
+    if not os.path.isdir('video'): os.system("mkdir video")
+    if not os.path.isdir('logs'): os.system("mkdir logs")
+
     operating = True
+    
     # Begin logging
     Log = Logger()
     Log.out("    V.R.S.E. Payload Control Program Started at system time: " + str(datetime.datetime.now().strftime("%Y-%m-%d T%H:%M:%S")) + ".")
@@ -130,7 +133,7 @@ async def main(testing):
     
     # Setup GPIO
     global EXTERNAL_TRIGGER
-    if testing: EXTERNAL_TRIGGER = testing != "buttons"
+    if testing: EXTERNAL_TRIGGER = False if testing == "buttons" else True
     GPIO_TRIGGER_MODE = GPIO.PUD_DOWN if EXTERNAL_TRIGGER else GPIO.PUD_UP
     GPIO.setup(TE_R, GPIO.IN, pull_up_down=GPIO_TRIGGER_MODE)
     GPIO.setup(TE_1, GPIO.IN, pull_up_down=GPIO_TRIGGER_MODE)
@@ -156,81 +159,78 @@ async def main(testing):
         Log.out("Now listening to timer event signals.")
     # Main loop listening for timer events
     while operating:
-        if not currentState or currentState == "TE-R":
-            if TE("R"):
-                currentState = "TE-R"
-                await persist.set(currentState)
-                Log.out("TE-R signal detected, beginning arm extension and video recording.")
-                
-                # Set up camera for recording 
-                async def record():
-                    recording = False
-                    usbOff = await usbcamctl.usb(False)
-                    if usbOff:
-                        Log.out("  USB ports have been disabled.")
-                        camPower = await usbcamctl.power(True)
-                        if camPower:
-                            Log.out("  Camera has been sent the power on signal via. GPIO.")
-                            recording = await usbcamctl.toggleRecord()
-                            if recording: Log.out("  Camera recording has been triggered via. GPIO.")
-                            else: Log.out("  Failed to trigger camera recording.")
-                        else: Log.out("  Failed to send camera power signal.")
-                    else: Log.out("  Failed to disable USB ports.")
-                    return recording
-                
-                # Asynchronous tasks
-                recording = asyncio.create_task(record())
-                extension = asyncio.create_task(extendArm())
-                status = {
-                    "recording": await recording,
-                    "extended": await extension
-                }
-                Log.out(f"The 360 degree camera is {'recording' if status['recording'] else 'not recording'}.")
-                Log.out(f"The arm is {'extended' if status['extended'] else 'not extended'}.")
-                
-                # Move on to the next 
-                currentState = "TE-1"
-                await persist.set(currentState)
-                Log.out("TE-R tasks are complete, waiting for TE-1 signal.")
-        elif currentState == "TE-1":
-            if TE("1"):
-                Log.out("TE-1 signal detected, retracting arm and transferring low quality footage to Pi.")
-                
-                # Retract Arm
-                retraction = await retractArm()
-                Log.out(f"The arm is {'retracted' if retraction else 'not retracted'}.")
+        if TE("R") and (not currentState or currentState == "TE-R"):
+            currentState = "TE-R"
+            await persist.set(currentState)
+            Log.out("TE-R signal detected, beginning arm extension and video recording.")
+            
+            # Set up camera for recording 
+            async def record():
+                recording = False
+                usbOff = await usbcamctl.usb(False)
+                if usbOff:
+                    Log.out("  USB ports have been disabled.")
+                    camPower = await usbcamctl.power(True)
+                    if camPower:
+                        Log.out("  Camera has been sent the power on signal via. GPIO.")
+                        recording = await usbcamctl.toggleRecord()
+                        if recording: Log.out("  Camera recording has been triggered via. GPIO.")
+                        else: Log.out("  Failed to trigger camera recording.")
+                    else: Log.out("  Failed to send camera power signal.")
+                else: Log.out("  Failed to disable USB ports.")
+                return recording
+            
+            # Asynchronous tasks
+            recording = asyncio.create_task(record())
+            extension = asyncio.create_task(extendArm())
+            status = {
+                "recording": await recording,
+                "extended": await extension
+            }
+            Log.out(f"The 360 degree camera is {'recording' if status['recording'] else 'not recording'}.")
+            Log.out(f"The arm is {'extended' if status['extended'] else 'not extended'}.")
+            
+            # Move on to the next 
+            currentState = "TE-1"
+            await persist.set(currentState)
+            Log.out("TE-R tasks are complete, waiting for TE-1 signal.")
+        elif TE("1") and currentState == "TE-1":
+            Log.out("TE-1 signal detected, retracting arm and transferring low quality footage to Pi.")
 
-                # Stop recording and enable USB interface
-                stoppedRecording = await usbcamctl.toggleRecord()
-                Log.out(f"The 360 degree camera is {'no longer recording' if stoppedRecording else 'still recording'}.")
-                usbOn = await usbcamctl.usb(True)
-                Log.out(f"USB ports are {'now enabled' if usbOn else 'still disabled'}.")
+            # Retract Arm
+            retraction = await retractArm()
+            Log.out(f"The arm is {'retracted' if retraction else 'not retracted'}.")
 
-                # Mount and tranfer files
-                os.system("sudo mkdir -p /mnt/usb")
-                await asyncio.sleep(0.2)
-                os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
-                await asyncio.sleep(0.2)
-                os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
-                await asyncio.sleep(0.2)
-                os.system("sync")
-                await asyncio.sleep(0.2)
-                os.system("sudo umount /dev/sda1")
-                await asyncio.sleep(1)
+            # Stop recording and enable USB interface
+            stoppedRecording = await usbcamctl.toggleRecord()
+            Log.out(f"The 360 degree camera is {'no longer recording' if stoppedRecording else 'still recording'}.")
+            usbOn = await usbcamctl.usb(True)
+            Log.out(f"USB ports are {'now enabled' if usbOn else 'still disabled'}.")
 
-                # Power off the camera 
-                camOff = await usbcamctl.power(False)
-                Log.out(f"The camera is {'shut down' if camOff else 'still running'}.")
-                
-                # Move on to the next 
-                currentState = "TE-2"
-                await persist.set(currentState)
-        elif currentState == "TE-2":
-            if TE("2"):
-                Log.out("TE-2 signal detected, exiting signal listen mode and shutting down electronic systems.")
-                currentState = "SPLASH"
-                await persist.set(currentState)
-                operating = False
+            # Mount and tranfer files
+            os.system("sudo mkdir -p /mnt/usb")
+            await asyncio.sleep(0.2)
+            os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
+            await asyncio.sleep(0.2)
+            os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
+            await asyncio.sleep(0.2)
+            os.system("sync")
+            await asyncio.sleep(0.2)
+            os.system("sudo umount /dev/sda1")
+            await asyncio.sleep(1)
+
+            # Power off the camera
+            camOff = await usbcamctl.power(False)
+            Log.out(f"The camera is {'shut down' if camOff else 'still running'}.")
+
+            # Move on to the next
+            currentState = "TE-2"
+            await persist.set(currentState)
+        elif TE("2") and currentState == "TE-2":
+            Log.out("TE-2 signal detected, exiting signal listen mode and shutting down electronic systems.")
+            currentState = "SPLASH"
+            await persist.set(currentState)
+            operating = False
         elif currentState == "SPLASH":
             Log.out("SPLASH state, exiting signal listen mode and shutting down electronic systems.")
             operating = False
@@ -258,7 +258,7 @@ if __name__ == "__main__":
                 asyncio.run(main("flatsat"))
         else:
             print("MODE: MISSION")
-            asyncio.run(main())
+            asyncio.run(main(None))
     else:
         print("MODE: MISSION")
-        asyncio.run(main())
+        asyncio.run(main(None))
