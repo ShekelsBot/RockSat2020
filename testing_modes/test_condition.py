@@ -17,7 +17,7 @@ wire20=20
 -_-_-_-_-Testing Codes-_-_-_-_-
 Condition 1 (Accel)    16 0 0 
 Condition 2 (Temp)     16 19 0
-Condition 3 (Pi Cam)   19 19 20
+Condition 3 (Pi Cam)   16 19 21
 Condition 4 (Motor)    0 0 21
 Condition 5 (Distance) 0 19 21
 Condition 6 (Cam)      16 0 21
@@ -32,7 +32,7 @@ GPIO.setup(wire20,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 print("-_-_-_-_-Testing Codes-_-_-_-_-")
 print("Condition 1 (Accel)    16 0 0 ")
 print("Condition 2 (Temp)     16 19 0")
-print("Condition 3 (Pi Cam)   19 19 20")
+print("Condition 3 (Pi Cam)   16 19 21")
 print("Condition 4 (Motor)    0 0 21")
 print("Condition 5 (Distance) 0 19 21")
 print("Condition 6 (Cam)      16 0 21")
