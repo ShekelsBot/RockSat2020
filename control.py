@@ -119,6 +119,9 @@ async def retractArm():
 
 # Main program method
 async def main(testing):
+    os.system("mkdir data")
+    os.system("mkdir video")
+    os.system("mkdir logs")
     operating = True
     # Begin logging
     Log = Logger()
@@ -197,11 +200,25 @@ async def main(testing):
                 retraction = await retractArm()
                 Log.out(f"The arm is {'retracted' if retraction else 'not retracted'}.")
 
-                # Stop recording and transfer files
+                # Stop recording and enable USB interface
                 stoppedRecording = await usbcamctl.toggleRecord()
                 Log.out(f"The 360 degree camera is {'no longer recording' if stoppedRecording else 'still recording'}.")
                 usbOn = await usbcamctl.usb(True)
                 Log.out(f"USB ports are {'now enabled' if usbOn else 'still disabled'}.")
+
+                # Mount and tranfer files
+                os.system("sudo mkdir -p /mnt/usb")
+                asyncio.sleep(0.2)
+                os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
+                asyncio.sleep(0.2)
+                os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
+                asyncio.sleep(0.2)
+                os.system("sync")
+                asyncio.sleep(0.2)
+                os.system("sudo umount /dev/sda1")
+                asyncio.sleep(1)
+
+                # Power off the camera 
                 camOff = await usbcamctl.power(False)
                 Log.out(f"The camera is {'shut down' if camOff else 'still running'}.")
                 
