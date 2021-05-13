@@ -29,7 +29,7 @@ poweroff_delay = float(config['usbcamctl']['poweroff_delay'])
 recordoff_delay = float(config['usbcamctl']['recordoff_delay'])
 
 # Setup GPIO
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 GPIO.setup(pin, GPIO.OUT)
 
