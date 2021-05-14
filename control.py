@@ -168,7 +168,10 @@ async def main(arguments):
     currentState = await persist.read()
     if currentState: Log.out(f"Persisting state detected ({currentState}). Possible power failure has occurred.")
     else: Log.out("No persisting state was detected, proceeding with normal execution order.")
-    
+
+    # Identify power failures
+    powerfailed = True if currentState != None else False
+
     # Begin recording sensor data (telemetry)
     if operating:
         #Log.out("Beginning sensor data collection and telemetry.")
@@ -181,23 +184,23 @@ async def main(arguments):
             Log.out("TE-R signal detected, beginning arm extension and video recording.")
             
             # Set up camera for recording 
-            async def record():
+            async def record(alreadypower):
                 recording = False
                 usbOff = usbcamctl.usb(False)
                 if usbOff:
                     Log.out("  USB ports have been disabled.")
-                    camPower = usbcamctl.power(True)
+                    camPower = usbcamctl.power(True) if not alreadypower else True
                     if camPower:
-                        Log.out("  Camera has been sent the power on signal via. GPIO.")
+                        Log.out("  Camera has been sent the power on signal via. GPIO." if not alreadypower else "  Camera should already be powered on before the recorded power failure.")
                         recording = usbcamctl.toggleRecord()
                         if recording: Log.out("  Camera recording has been triggered via. GPIO.")
                         else: Log.out("  Failed to trigger camera recording.")
                     else: Log.out("  Failed to send camera power signal.")
                 else: Log.out("  Failed to disable USB ports.")
                 return recording
-            
+
             # Asynchronous tasks
-            recording = asyncio.create_task(record())
+            recording = asyncio.create_task(record(powerfailed))
             extension = asyncio.create_task(extendArm())
             status = {
                 "recording": await recording,
