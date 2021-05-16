@@ -20,9 +20,9 @@ import os
 from adafruit_motorkit import MotorKit
 
 # Unique
-from logger import Logger
-import usbcamctl
-import persist
+#from logger import Logger
+#import usbcamctl
+#import persist
 from accel_condition import Accel
 from camera_condition import Camera
 from distance_condition import Distance
@@ -46,9 +46,9 @@ GPIO.setup(INHIBIT_3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Shorthand
 def inhibit(id):
-    if id == 1 return: GPIO.input(INHIBIT_1) == 0
-    if id == 2 return: GPIO.input(INHIBIT_2) == 0
-    if id == 3 return: GPIO.input(INHIBIT_3) == 0
+    if id == 1: return GPIO.input(INHIBIT_1) == 0
+    if id == 2: return GPIO.input(INHIBIT_2) == 0
+    if id == 3: return GPIO.input(INHIBIT_3) == 0
 
 # Define inhibit conditions based on evaluation of pin states
 ACCEL_INHIBIT = inhibit(1)
@@ -86,10 +86,13 @@ def cam_test():
     print ("Camera Test")
     Camera()
     
-while (1):
+while (operating):
     if ACCEL_INHIBIT: accel_test()
-    if TEMP_INHIBIT: temp_test()
-    if PICAMERA_INHIBIT: picamera_test()
-    if MOTOR_INHIBIT: motor_test()
-    if DISTANCE_INHIBIT: distance_test()
-    if CAM_INHIBIT: cam_test()
+    elif TEMP_INHIBIT: temp_test()
+    elif PICAMERA_INHIBIT: picamera_test()
+    elif MOTOR_INHIBIT: motor_test()
+    elif DISTANCE_INHIBIT: distance_test()
+    elif CAM_INHIBIT: cam_test()
+    else:
+        print ("LAUNCH CONDITION")
+        operating = False
