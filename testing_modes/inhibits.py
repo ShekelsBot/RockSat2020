@@ -13,28 +13,31 @@ Condition 7 (Launch)   0 0 0
 -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 '''
 
+from re import I
 import RPi.GPIO as GPIO
 import board
+import configparser
 import subprocess
 import os
 from adafruit_motorkit import MotorKit
+from time import sleep
 
 # Unique
 #from logger import Logger
 #import usbcamctl
 #import persist
-from accel_condition import Accel
-from camera_condition import Camera
-from distance_condition import Distance
+#from accel_condition import Accel
+#from camera_condition import Camera
+#from distance_condition import Distance
 
 # Load confifuration from config.ini
 config = configparser.ConfigParser()
 config.read('./config.ini')
 
 #Define and setup
-INHIBIT_1=int(config['Inhibit_1'])
-INHIBIT_2=int(config['Inhibit_2'])
-INHIBIT_3=int(config['Inhibit_3'])
+INHIBIT_1=int(config['pinout']['Inhibit_1'])
+INHIBIT_2=int(config['pinout']['Inhibit_2'])
+INHIBIT_3=int(config['pinout']['Inhibit_3'])
 
 # Set GPIO mode
 GPIO.setmode(GPIO.BCM)
@@ -51,12 +54,12 @@ def inhibit(id):
     if id == 3: return GPIO.input(INHIBIT_3) == 0
 
 # Define inhibit conditions based on evaluation of pin states
-ACCEL_INHIBIT = inhibit(1)
-TEMP_INHIBIT = inhibit(1) and inhibit(2)
+ACCEL_INHIBIT = inhibit(1) and not inhibit(2) and not inhibit(3)
+TEMP_INHIBIT = inhibit(1) and inhibit(2) and not inhibit(3)
 PICAMERA_INHIBIT = inhibit(1) and inhibit(2) and inhibit(3)
-MOTOR_INHIBIT = inhibit(3)
-DISTANCE_INHIBIT = inhibit(2) and inhibit(3)
-CAM_INHIBIT = inhibit(1) and inhibit(3)  
+MOTOR_INHIBIT = not inhibit(1) and not inhibit(2) and inhibit(3)
+DISTANCE_INHIBIT = not inhibit(1) and inhibit(2) and inhibit(3)
+CAM_INHIBIT = inhibit(1) and inhibit(3) and not inhibit(2)
 
 #Listen for timer events or testing mode
 EXTERNAl_TRIGGER = True
@@ -64,28 +67,44 @@ EXTERNAl_TRIGGER = True
 # Set GPIO mode
 GPIO.setmode(GPIO.BCM)
 #MotorKit class
+'''
 kit = MotorKit(i2c=board.I2C())
 arm = kit.motor3
+'''
+
+print (inhibit(1))
+print (inhibit(2))
+print (inhibit(3))
 
 def accel_test():
-    print("Accel Test")
-    Accel()
+    print ("Accel Test")
+    #Accel()
+    sleep(1)
+    
 def temp_test():
-    print("Temp Test")
+    print ("Temp Test")
+    sleep(1)
+
 def picamera_test():
     print ("Pi Cam Test")
+    sleep(1)
 
 def motor_test():
     print ("Motor Test")
+    sleep(1)
 
 def distance_test():
     print ("Distance Test")
-    Distance()
+    sleep(1)
+    #Distance()
     
 def cam_test():
     print ("Camera Test")
-    Camera()
-    
+    sleep(1)
+    #Camera()
+
+operating = True
+
 while (operating):
     if ACCEL_INHIBIT: accel_test()
     elif TEMP_INHIBIT: temp_test()
