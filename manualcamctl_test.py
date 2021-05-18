@@ -7,10 +7,9 @@
 # Import dependencies
 import usbcamctl
 import sys
-import asyncio
 
 # Main
-async def main(arguments):
+def main(arguments):
     if "poweron" in arguments: usbcamctl.power(True)
     if "poweroff" in arguments: usbcamctl.power(False)
     if "record" in arguments: usbcamctl.toggleRecord()
