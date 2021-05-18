@@ -36,6 +36,15 @@ def main(arguments):
     if "usbon" in arguments: usbcamctl.usb(True)
     if "usboff" in arguments: usbcamctl.usb(False)
 
+def camera_testing():
+    usbcamctl.power(True)
+    usbcamctl.usb(False)
+    usbcamctl.toggleRecord()
+    sleep(10)
+    usbcamctl.toggleRecord()
+    usbcamctl.usb(True)
+    usbcamctl.power(False)
+
 # Entry point
 '''
 if __name__ == "__main__":
@@ -44,8 +53,12 @@ if __name__ == "__main__":
     main(arguments)
 
 '''
+
+
 if CAM_INHIBIT:
+    print ("Camera ONLY")
+    camera_testing()
     if __name__ == "__main__":
-    arguments = sys.argv
-    arguments.pop(0)
-    main(arguments)
+        arguments = sys.argv
+        arguments.pop(0)
+        main(arguments)
