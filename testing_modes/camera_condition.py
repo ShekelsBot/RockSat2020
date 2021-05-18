@@ -3,21 +3,22 @@
 import RPi.GPIO as GPIO
 import time
 
-class Camera:
-    pin = 12
-    power_on_seconds = 2
-    set_mode_seconds = 1
-    record_on_seconds = .5
-    power_off_seconds = 4
-    record_time_seconds = 10
 
-    time_delay1 = 3
-    time_delay2 = 8
+pin = 12
+power_on_seconds = 2
+set_mode_seconds = 1
+record_on_seconds = .5
+power_off_seconds = 4
+record_time_seconds = 10
 
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setwarnings(False)
-    GPIO.setup(pin, GPIO.OUT)
+time_delay1 = 3
+time_delay2 = 8
 
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(pin, GPIO.OUT)
+
+def camera_control():
     print("Powering On.")
     GPIO.output(pin, GPIO.HIGH)
     time.sleep(power_on_seconds)

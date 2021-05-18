@@ -14,6 +14,9 @@ Condition 7 (Launch)   0 0 0
 '''
 
 from re import I
+from testing_modes.temp_array_condition import temparray_test
+from testing_modes.camera_condition import camera_control
+from testing_modes.accel_condition import accel
 import RPi.GPIO as GPIO
 import board
 import configparser
@@ -26,9 +29,12 @@ from time import sleep
 #from logger import Logger
 #import usbcamctl
 #import persist
-#from accel_condition import Accel
-#from camera_condition import Camera
-#from distance_condition import Distance
+import accel_condition
+import camera_condition
+import distance_condition
+import motor_condition
+import picamera_condition
+import temp_array_condition
 
 # Load confifuration from config.ini
 config = configparser.ConfigParser()
@@ -78,30 +84,33 @@ print (inhibit(3))
 
 def accel_test():
     print ("Accel Test")
-    #Accel()
+    accel_condition(accel)
     sleep(1)
     
 def temp_test():
     print ("Temp Test")
     sleep(1)
+    temp_array_condition(temparray_test)
 
 def picamera_test():
     print ("Pi Cam Test")
     sleep(1)
+    picamera_condition(picamera_test)
 
 def motor_test():
     print ("Motor Test")
     sleep(1)
+    motor_condition(motor_test)
 
 def distance_test():
     print ("Distance Test")
     sleep(1)
-    #Distance()
+    distance_condition(distance_test)
     
 def cam_test():
     print ("Camera Test")
     sleep(1)
-    #Camera()
+    camera_condition(camera_control)
 
 operating = True
 

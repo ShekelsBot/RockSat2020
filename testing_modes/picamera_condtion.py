@@ -15,29 +15,31 @@ TIME_STATUS_OK = 0.5
 
 file_root = "/home/pi/videos/"
 
-if(psutil.disk_usage(".").percent > SPACE_LIMIT):
-	print('WARNING: Low space!')
-	exit()
+def pi_camera_test():
 
-with picamera.PiCamera() as camera:
-	camera.resolution = (1920,1080)
-	camera.framerate = 30
+	if(psutil.disk_usage(".").percent > SPACE_LIMIT):
+		print('WARNING: Low space!')
+		exit()
 
-	print('Searching files...')
-	for i in range(1, MAX_FILES):
-		file_number = i
-		file_name = file_root + "test_video" + str(i).zfill(3) + ".h264"
-		exists = os.path.isfile(file_name)
-		if not exists:
-			print ("Search Complete")
-			break
+	with picamera.PiCamera() as camera:
+		camera.resolution = (1920,1080)
+		camera.framerate = 30
 
-	for file_name in camera.record_sequence(file_root + "video%03d.h264" % i for i in range(file_number, MAX_FILES)):
-		timeout = time.time() + DURATION
-		print('TEST Recording to %s' % file_name)
+		print('Searching files...')
+		for i in range(1, MAX_FILES):
+			file_number = i
+			file_name = file_root + "test_video" + str(i).zfill(3) + ".h264"
+			exists = os.path.isfile(file_name)
+			if not exists:
+				print ("Search Complete")
+				break
 
-		while(time.time() < timeout):
-			time.sleep(TIME_STATUS_OK)
-			if(psutil.disk_usage(".").percent > SPACE_LIMIT):
-				print('WARNING: Low space!')
-				break;
+		for file_name in camera.record_sequence(file_root + "video%03d.h264" % i for i in range(file_number, MAX_FILES)):
+			timeout = time.time() + DURATION
+			print('TEST Recording to %s' % file_name)
+
+			while(time.time() < timeout):
+				time.sleep(TIME_STATUS_OK)
+				if(psutil.disk_usage(".").percent > SPACE_LIMIT):
+					print('WARNING: Low space!')
+					break;
