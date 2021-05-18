@@ -30,7 +30,7 @@ class Logger:
         present = datetime.datetime.timestamp(datetime.datetime.now())
         elapsed = present - self.timestarted
         # Predefining log output so that the time remains constant on both the console output and file output
-        logOutput = "[" + str(datetime.datetime.fromtimestamp(elapsed).strftime("T+%M:%S")) + "] " + message + "\n"
+        logOutput = "[GSE " + str(datetime.datetime.fromtimestamp(elapsed).strftime("T+%M:%S")) + "] " + message + "\n"
         # Output to the console
         print(logOutput, end='')
         # Output to the log file
