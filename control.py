@@ -104,7 +104,7 @@ def extendArm():
             sleep(1)
             while arm.throttle == 1:
                 # Once extend limit is hit, set throttle to 0 and return True to signify extension
-                if armExtended():
+                if armExtended() or TE("1"):
                     arm.throttle = 0
                     return True
         else: return True
@@ -120,7 +120,7 @@ def retractArm():
             sleep(1)
             while arm.throttle == -1:
                 # Once retract limit is hit, set throttle to 0 and return True to signify retraction
-                if armRetracted():
+                if armRetracted() or TE("2"):
                     arm.throttle = 0
                     return True
         else: return True
@@ -206,8 +206,14 @@ def main(arguments):
                 "extended": False
             }
             # Wrapper functions for multi threading
-            def doRecord(): status["recording"] = record(powerfailed)
-            def doExtend(): status["extended"] = extendArm()
+            def doRecord():
+                status["recording"] = record(powerfailed)
+                Log.out(f"The 360 degree camera is {'recording' if status['recording'] else 'not recording'}.")
+                return
+            def doExtend():
+                status["extended"] = extendArm()
+                Log.out(f"The arm is {'extended' if status['extended'] else 'not extended'}.")
+                return
             # Create threads
             recordThread = threading.Thread(target=doRecord)
             recordThread.start()
@@ -216,9 +222,6 @@ def main(arguments):
             # Finish threads
             recordThread.join()
             extendThread.join()
-
-            Log.out(f"The 360 degree camera is {'recording' if status['recording'] else 'not recording'}.")
-            Log.out(f"The arm is {'extended' if status['extended'] else 'not extended'}.")
             
             # Move on to the next 
             currentState = "TE-1"
