@@ -12,6 +12,7 @@
         Flat Sat (Default)      $ python control.py --test
         Flat Sat (Explicit)     $ python control.py --test flatsat
         Buttons                 $ python control.py --test buttons
+        360_Camera              Just connect the inhibit wire
         ** During any test routine shutdown is simulated.
     Reset:
         The control program can be reset using the '--reset' argument.
