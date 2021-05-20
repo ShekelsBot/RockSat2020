@@ -44,7 +44,7 @@ TIME_STATUS_OK = 0.5
 file_root = "/home/pi/videos/"
 
 i2c = busio.I2C(board.SCL, board.SDA)
-
+'''
 # Define serial port
 ser = serial.Serial(
         port='/dev/ttyS0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
@@ -54,7 +54,7 @@ ser = serial.Serial(
         bytesize=serial.EIGHTBITS,
         timeout=1
 )
-
+'''
 def TempConversion(c):
     return c * 9.0 / 5.0 + 32
 
@@ -85,7 +85,7 @@ def sensors():
         global distance
         distance = vl53.range
         print ("Range: {0}mm".format(distance))
-        ser.write (b'Range: %d '%(distance)+b' mm \n')
+        #ser.write (b'Range: %d '%(distance)+b' mm \n')
         time.sleep(.1)
 
         # Temperature Sensor 1
@@ -101,13 +101,13 @@ def sensors():
         die2 = sensor2.readDieTempC()
 
         # Temperature Sensor 1 Serial out
-        ser.write (b'Sensor 1 object Temperature: %d \n'%(obj1))
-        ser.write (b'Sensor 1 die Temperature: %d \n'%(die1))
+        #ser.write (b'Sensor 1 object Temperature: %d \n'%(obj1))
+        #ser.write (b'Sensor 1 die Temperature: %d \n'%(die1))
         time.sleep(.1)
 
         # Temperature Sensor 2 Serial out
-        ser.write (b'Sensor 2 object Temperature: %d \n'%(obj2))
-        ser.write (b'Sensor 2 die Temperature: %d \n'%(die2))
+        #ser.write (b'Sensor 2 object Temperature: %d \n'%(obj2))
+        #ser.write (b'Sensor 2 die Temperature: %d \n'%(die2))
         time.sleep(.1)
 
         # Accelerometer tupple parse
@@ -118,10 +118,14 @@ def sensors():
         yAxis = (round(accelerometer.acceleration[1],1))
         zAxis = (round(accelerometer.acceleration[2],1))
 
+        print (xAxis)
+        print (yAxis)
+        print (zAxis)
+
         # Accelerometer Serial out
-        ser.write (b'X Axis: %d \n'%(xAxis))
-        ser.write (b'Y Axis: %d \n'%(yAxis))
-        ser.write (b'Z Axis: %d \n'%(zAxis))
+        #ser.write (b'X Axis: %d \n'%(xAxis))
+        #ser.write (b'Y Axis: %d \n'%(yAxis))
+        #ser.write (b'Z Axis: %d \n'%(zAxis))
         
         #Write all data
         write_sensors()
@@ -166,7 +170,7 @@ if(psutil.disk_usage(".").percent > SPACE_LIMIT):
     
 # Multiprocess start loop
 if __name__=='__main__':
-    p1 = Process(target = secondCamera)
+    #p1 = Process(target = secondCamera)
+    #p1.start()
+    p1 = Process(target = sensors)
     p1.start()
-    p2 = Process(target = sensors)
-    p2.start()

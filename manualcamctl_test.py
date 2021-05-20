@@ -6,6 +6,7 @@
 
 # Import dependencies
 import usbcamctl
+import configparser
 import sys
 from time import sleep
 import os
@@ -42,7 +43,7 @@ def main(arguments):
 
 def camera_testing():
     usbcamctl.power(True) #Power on
-    usbcamctl.usb(True) #USB Power off
+    usbcamctl.usb(False) #USB Power off
     usbcamctl.toggleRecord() #Toggle recording
     sleep(10)
     usbcamctl.toggleRecord() #Stop recording

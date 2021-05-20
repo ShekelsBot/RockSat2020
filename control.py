@@ -82,6 +82,9 @@ GPIO.setmode(GPIO.BCM)
 kit = MotorKit(i2c=board.I2C())
 arm = kit.motor3
 
+# Setup GPIO
+GPIO.setup(INHIBIT_1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
 # Shorthand
 def armExtended(): return GPIO.input(EXTEND_LIMIT) == 0
 def armRetracted(): return GPIO.input(RETRACT_LIMIT) == 0
@@ -98,7 +101,7 @@ CAM_INHIBIT = inhibit(1)
 #Camera Testing before flight
 def camera_testing():
     usbcamctl.power(True) #Power on
-    usbcamctl.usb(True) #USB Power off
+    usbcamctl.usb(False) #USB Power off
     usbcamctl.toggleRecord() #Toggle recording
     sleep(10)
     usbcamctl.toggleRecord() #Stop recording
@@ -108,16 +111,16 @@ def camera_testing():
     if not os.path.isdir('/mnt/usb'): os.system("sudo mkdir -p /mnt/usb")
     if not os.path.isdir('video'): os.system("mkdir video")
     sleep(2)
-    log.out("Mounting Camera")
+    #log.out("Mounting Camera")
     os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
     sleep(1)
-    log.out("Transfer footage")
+    #log.out("Transfer footage")
     os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
     sleep(0.2)
-    log.ou("Syncing")
+    #log.ou("Syncing")
     os.system("sync")
     sleep(0.2)
-    log.out("Unmounting camera")
+    #log.out("Unmounting camera")
     os.system("sudo umount /dev/sda1")
     sleep(1)
 
@@ -171,7 +174,7 @@ def main(arguments):
             testing = "buttons"
     if ("--reset" in arguments): persist.clear()
     if ("--exit" in arguments): return True
-    if (CAM_INHIBIT:)
+    if CAM_INHIBIT:
         print ("CAMERA INHIBIT")
         camera_testing()
 
