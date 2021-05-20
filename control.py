@@ -70,6 +70,7 @@ TE_1 = int(config['pinout']['TimerEvent1'])                  # Spacecraft Batter
 TE_2 = int(config['pinout']['TimerEvent2'])                  # Spacecraft Battery Bus Timer Event (TE-2)
 EXTEND_LIMIT = int(config['pinout']['ExtendLimitSwitch'])    # Arm Extension Limit Switch
 RETRACT_LIMIT = int(config['pinout']['RetractLimitSwitch'])  # Arm Retraction Limit Switch
+INHIBIT_1=int(config['pinout']['Inhibit_1'])                 # Flight Inhibit
 
 # Whether or not timer events are triggered by an external signal (flatsat, mission) or 
 EXTERNAL_TRIGGER = True
@@ -83,10 +84,45 @@ arm = kit.motor3
 # Shorthand
 def armExtended(): return GPIO.input(EXTEND_LIMIT) == 0
 def armRetracted(): return GPIO.input(RETRACT_LIMIT) == 0
+def inhibit(id):
+    if id == 1: return GPIO.input(INHIBIT_1) == 0
 def TE(id):
     if id == "R": return (GPIO.input(TE_R) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_R) == 0 and not EXTERNAL_TRIGGER)
     if id == "1": return (GPIO.input(TE_1) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_1) == 0 and not EXTERNAL_TRIGGER)
     if id == "2": return (GPIO.input(TE_2) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_2) == 0 and not EXTERNAL_TRIGGER)
+
+#Define inhibit
+CAM_INHIBIT = inhibit(1)
+
+#Camera Testing before flight
+def camera_testing():
+    usbcamctl.power(True) #Power on
+    usbcamctl.usb(True) #USB Power off
+    usbcamctl.toggleRecord() #Toggle recording
+    sleep(10)
+    usbcamctl.toggleRecord() #Stop recording
+    usbcamctl.usb(True) #Turn on power to USB
+
+    # Mount and tranfer files
+    if not os.path.isdir('/mnt/usb'): os.system("sudo mkdir -p /mnt/usb")
+    if not os.path.isdir('video'): os.system("mkdir video")
+    sleep(2)
+    log.out("Mounting Camera")
+    os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
+    sleep(1)
+    log.out("Transfer footage")
+    os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
+    sleep(0.2)
+    log.ou("Syncing")
+    os.system("sync")
+    sleep(0.2)
+    log.out("Unmounting camera")
+    os.system("sudo umount /dev/sda1")
+    sleep(1)
+
+    #Power off camera
+    log.out("Turning off camera")
+    usbcamctl.power(False)
 
 # Extend arm motor control operations
 def extendArm():
@@ -134,6 +170,9 @@ def main(arguments):
             testing = "buttons"
     if ("--reset" in arguments): persist.clear()
     if ("--exit" in arguments): return True
+    if (CAM_INHIBIT:)
+        print ("CAMERA INHIBIT")
+        camera_testing()
 
     operating = True
     
