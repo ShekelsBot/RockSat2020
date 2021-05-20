@@ -1,22 +1,18 @@
 #!/usr/bin/python
 """
     control - This is the main program for the VRSE payload.
-
     ** This script must be run with ~/RockSat2020 as the working directory
        with all of the directories (logs, data, video) and all of the files
        (config.ini) in place.
-
     Contributors:
         Andrew Bruckbauer
         Konstantin Zaremski
-
     Testing:
         The control program can be tested using the '--test' argument.
         Flat Sat (Default)      $ python control.py --test
         Flat Sat (Explicit)     $ python control.py --test flatsat
         Buttons                 $ python control.py --test buttons
         ** During any test routine shutdown is simulated.
-
     Reset:
         The control program can be reset using the '--reset' argument.
         The reset argument clears any persisting save state so that operaiton
@@ -24,12 +20,10 @@
         $ python control.py --reset
         Flags can be supplied together (optional):    
         $ python control.py --reset --test
-
     Functionality:
         This program controls all VRSE functionality including arm extension
         and retraction, camera recording, and telemetry based on timer events
         provided by the host spacecraft.
-
     Spacecraft Battery Bus Timer Events:
         ID      Time    Description & Action
         GSE     T-30s   Spacecraft power is turned on and the Pi running this
@@ -55,10 +49,10 @@ import sys
 import configparser
 from RPi import GPIO
 import datetime
+from time import sleep
 import board
+import threading
 import os
-import subprocess
-import asyncio
 from adafruit_motorkit import MotorKit
 
 # Unique
@@ -87,21 +81,21 @@ kit = MotorKit(i2c=board.I2C())
 arm = kit.motor3
 
 # Shorthand
-def armExtended(): return True if GPIO.input(EXTEND_LIMIT) == 0 else False
-def armRetracted(): return True if GPIO.input(RETRACT_LIMIT) == 0 else False
+def armExtended(): return GPIO.input(EXTEND_LIMIT) == 0
+def armRetracted(): return GPIO.input(RETRACT_LIMIT) == 0
 def TE(id):
-    if id == "R": return True if (GPIO.input(TE_R) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_R) == 0 and not EXTERNAL_TRIGGER) else False
-    if id == "1": return True if (GPIO.input(TE_1) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_1) == 0 and not EXTERNAL_TRIGGER) else False
-    if id == "2": return True if (GPIO.input(TE_2) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_2) == 0 and not EXTERNAL_TRIGGER) else False
+    if id == "R": return (GPIO.input(TE_R) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_R) == 0 and not EXTERNAL_TRIGGER)
+    if id == "1": return (GPIO.input(TE_1) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_1) == 0 and not EXTERNAL_TRIGGER)
+    if id == "2": return (GPIO.input(TE_2) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_2) == 0 and not EXTERNAL_TRIGGER)
 
 # Extend arm motor control operations
-async def extendArm():
+def extendArm():
     try:
         # If extend limit switch not hit, extend (positive throttle),
         # otherwise return True to signify extension
         if not armExtended():
             arm.throttle = 1
-            await asyncio.sleep(1)
+            sleep(1)
             while arm.throttle == 1:
                 # Once extend limit is hit, set throttle to 0 and return True to signify extension
                 if armExtended():
@@ -111,13 +105,13 @@ async def extendArm():
     except: return False
 
 # Retract arm motor control operations
-async def retractArm():
+def retractArm():
     try:
         # If extend limit switch not hit, retract (negative throttle),
         # otherwise return True to signify retraction
         if not armRetracted():
             arm.throttle = -1
-            await asyncio.sleep(1)
+            sleep(1)
             while arm.throttle == -1:
                 # Once retract limit is hit, set throttle to 0 and return True to signify retraction
                 if armRetracted():
@@ -127,7 +121,7 @@ async def retractArm():
     except: return False
 
 # Main program method
-async def main(arguments):
+def main(arguments):
     if not os.path.isdir('data'): os.system("mkdir data")
     if not os.path.isdir('video'): os.system("mkdir video")
     if not os.path.isdir('logs'): os.system("mkdir logs")
@@ -136,9 +130,10 @@ async def main(arguments):
     testing = False
     if ("--test" in arguments):
         testing = "flatsat"
-        if (arguments.index("--test") != len(arguments) - 1):
+        if (arguments.index("--test") != len(arguments) - 1) and arguments[arguments.index("--test") + 1] == "buttons":
             testing = "buttons"
-    if ("--reset in arguments"): await persist.clear()
+    if ("--reset" in arguments): persist.clear()
+    if ("--exit" in arguments): return True
 
     operating = True
     
@@ -162,10 +157,10 @@ async def main(arguments):
     
     # Disable motor throttle in case program crashed and was enabled
     arm.throttle = 0
-    await asyncio.sleep(1)
+    sleep(1)
     
     # Load previous state
-    currentState = await persist.read()
+    currentState = persist.read()
     if currentState: Log.out(f"Persisting state detected ({currentState}). Possible power failure has occurred.")
     else: Log.out("No persisting state was detected, proceeding with normal execution order.")
 
@@ -180,11 +175,11 @@ async def main(arguments):
     while operating:
         if TE("R") and (not currentState or currentState == "TE-R"):
             currentState = "TE-R"
-            await persist.set(currentState)
+            persist.set(currentState)
             Log.out("TE-R signal detected, beginning arm extension and video recording.")
             
             # Set up camera for recording 
-            async def record(alreadypower):
+            def record(alreadypower):
                 recording = False
                 usbOff = usbcamctl.usb(False)
                 if usbOff:
@@ -199,56 +194,72 @@ async def main(arguments):
                 else: Log.out("  Failed to disable USB ports.")
                 return recording
 
-            # Asynchronous tasks
-            recording = asyncio.create_task(record(powerfailed))
-            extension = asyncio.create_task(extendArm())
+            # Asynchronous tasks via. multithreading
             status = {
-                "recording": await recording,
-                "extended": await extension
+                "recording": False,
+                "extended": False
             }
+            # Wrapper functions for multi threading
+            def doRecord(): status["recording"] = record(powerfailed)
+            def doExtend(): status["extended"] = extendArm()
+            # Create threads
+            recordThread = threading.Thread(target=doRecord)
+            recordThread.start()
+            extendThread = threading.Thread(target=doExtend)
+            extendThread.start()
+            # Finish threads
+            recordThread.join()
+            extendThread.join()
+
             Log.out(f"The 360 degree camera is {'recording' if status['recording'] else 'not recording'}.")
             Log.out(f"The arm is {'extended' if status['extended'] else 'not extended'}.")
             
             # Move on to the next 
             currentState = "TE-1"
-            await persist.set(currentState)
+            persist.set(currentState)
             Log.out("TE-R tasks are complete, waiting for TE-1 signal.")
         elif TE("1") and currentState == "TE-1":
             Log.out("TE-1 signal detected, retracting arm and transferring low quality footage to Pi.")
 
             # Retract Arm
-            retraction = await retractArm()
+            retraction = retractArm()
             Log.out(f"The arm is {'retracted' if retraction else 'not retracted'}.")
 
             # Stop recording and enable USB interface
-            stoppedRecording = await usbcamctl.toggleRecord()
+            stoppedRecording = usbcamctl.toggleRecord()
             Log.out(f"The 360 degree camera is {'no longer recording' if stoppedRecording else 'still recording'}.")
-            usbOn = await usbcamctl.usb(True)
+            usbOn = usbcamctl.usb(True)
             Log.out(f"USB ports are {'now enabled' if usbOn else 'still disabled'}.")
 
             # Mount and tranfer files
             if not os.path.isdir('/mnt/usb'): os.system("sudo mkdir -p /mnt/usb")
-            await asyncio.sleep(0.2)
+            if not os.path.isdir('video'): os.system("mkdir video")
+            sleep(2)
+            Log.out("Mounting 360 degree camera SD card over USB.")
             os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
-            await asyncio.sleep(0.2)
+            sleep(1)
             os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
-            await asyncio.sleep(0.2)
+            Log.out("All low resolution video files have been copied.")
+            sleep(0.2)
             os.system("sync")
-            await asyncio.sleep(0.2)
+            Log.out("All buffers have been synchronized with their respective block devices.")
+            sleep(0.2)
+            Log.out("Unmounting 360 degree camera.")
             os.system("sudo umount /dev/sda1")
-            await asyncio.sleep(1)
+            sleep(1)
 
             # Power off the camera
-            camOff = await usbcamctl.power(False)
+            camOff = usbcamctl.power(False)
             Log.out(f"The camera is {'shut down' if camOff else 'still running'}.")
 
             # Move on to the next
             currentState = "TE-2"
-            await persist.set(currentState)
+            persist.set(currentState)
+            Log.out("TE-1 tasks are completed, waiting for TE-2 signal.")
         elif TE("2") and currentState == "TE-2":
             Log.out("TE-2 signal detected, exiting signal listen mode and shutting down electronic systems.")
             currentState = "SPLASH"
-            await persist.set(currentState)
+            persist.set(currentState)
             operating = False
         elif currentState == "SPLASH":
             Log.out("SPLASH state, exiting signal listen mode and shutting down electronic systems.")
@@ -260,8 +271,10 @@ async def main(arguments):
     # End logging
     Log.close()
     
-    if not testing:
-        os.system("sudo poweroff")
+    if not testing: os.system("sudo poweroff")
 
 # Entry point
-if __name__ == "__main__": asyncio.run(main(sys.argv.pop(0)))
+if __name__ == "__main__":
+    arguments = sys.argv
+    arguments.pop(0)
+    main(arguments)
