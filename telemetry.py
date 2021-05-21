@@ -57,8 +57,7 @@ def write_sensors():
     with open("/home/pi/data/Telemetry.csv", "a") as log:
         log.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},\n"
         .format(strftime("%Y-%m-%d %H:%M:%S"),"Temp1",str(TempConversion(die1))+" F",str(TempConversion(obj1))+" F",str(die1)+" C",str(obj1)+" C",
-        " ","Distance","BLANK MM"
-        ,str(xAxis),str(yAxis),str(zAxis)))
+        " ","Distance","BLANK MM",str(xAxis),str(yAxis),str(zAxis)))
 
 def sensors():
     # Temperature Sensor 1
