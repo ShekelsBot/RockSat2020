@@ -107,25 +107,25 @@ def camera_testing():
     usbcamctl.toggleRecord() #Stop recording
     usbcamctl.usb(True) #Turn on power to USB
 
+    Log_Test = Logger()
     # Mount and tranfer files
     if not os.path.isdir('/mnt/usb'): os.system("sudo mkdir -p /mnt/usb")
     if not os.path.isdir('video'): os.system("mkdir video")
     sleep(2)
-    #log.out("Mounting Camera")
+    Log_Test.out("Mounting Camera")
     os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
     sleep(1)
-    #log.out("Transfer footage")
+    Log_Test.out("Transfer footage")
     os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
     sleep(0.2)
-    #log.ou("Syncing")
+    Log_Test.out("Syncing")
     os.system("sync")
     sleep(0.2)
-    #log.out("Unmounting camera")
+    Log_Test.out("Unmounting camera")
     os.system("sudo umount /dev/sda1")
     sleep(1)
-
     #Power off camera
-    log.out("Turning off camera")
+    Log_Test.out("Turning off camera")
     usbcamctl.power(False)
 
 # Extend arm motor control operations

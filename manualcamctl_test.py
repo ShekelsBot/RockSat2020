@@ -68,8 +68,9 @@ def camera_testing():
 # Entry point
 if CAM_INHIBIT:
     print ("Camera ONLY")
-    camera_testing()
     if __name__ == "__main__":
         arguments = sys.argv
         arguments.pop(0)
         main(arguments)
+    else:
+        camera_testing()
