@@ -91,4 +91,9 @@ sudo echo "boot_delay=0" >> /boot/config.txt
 sudo echo "disable_splash=1" >> /boot/config.txt
 sudo echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt
 
+# Installing the VRSE systemd service unit file
+echo "    Installing the systemd service unit file"
+sudo cp ~/RockSat2020/vrse.service /etc/systemd/system
+echo "    SystemD service unit file, before flight run 'sudo systemctl enable vrse.service' to enable the service so that the VRSE payload script is started at boot time."
+
 echo "INSTALLATION COMPLETE"
