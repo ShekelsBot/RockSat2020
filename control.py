@@ -169,9 +169,9 @@ def sensors():
         ser.write (b'Z Axis: %d \n'%(zAxis))
         '''
 
-        print ('X Axis: %d \n'%(xAxis))
-        print ('Y Axis: %d \n'%(yAxis))
-        print ('Z Axis: %d \n'%(zAxis))
+        print ('X Axis: %d'%(xAxis))
+        print ('Y Axis: %d'%(yAxis))
+        print ('Z Axis: %d'%(zAxis))
         
         #Write all data
         '''
