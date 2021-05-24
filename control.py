@@ -421,8 +421,6 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print ("Caught KeyboardInterrupt exiting")
-        p1.terminate
-        p2.terminate
 
 
     
