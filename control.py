@@ -185,8 +185,8 @@ def sensors():
 
 #Camera Testing before flight
 def camera_testing():
-    usbcamctl.power(True) #Power on
     usbcamctl.usb(False) #USB Power off
+    usbcamctl.power(True) #Power on
     usbcamctl.toggleRecord() #Toggle recording
     sleep(10)
     usbcamctl.toggleRecord() #Stop recording
