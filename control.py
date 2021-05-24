@@ -174,6 +174,7 @@ def sensors():
         print ('Z Axis: %d \n'%(zAxis))
         
         #Write all data
+        '''
         write_sensors({
             "obj1": obj1,
             "die1": die1,
@@ -181,6 +182,7 @@ def sensors():
             "yaxis": yAxis,
             "zaxis": zAxis
         })
+        '''
         sleep(0.5)
 
 #Camera Testing before flight
