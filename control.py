@@ -424,5 +424,8 @@ if __name__ == "__main__":
         p1.terminate()
         p2.terminate()
 
+        p1.join()
+        p2.join()
+
 
     
