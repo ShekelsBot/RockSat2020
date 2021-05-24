@@ -410,16 +410,19 @@ def main(arguments):
 
 # Entry point
 if __name__ == "__main__":
-    arguments = sys.argv
-    arguments.pop(0)
-    
-    print ("Starting sesnors \n")
-    sleep (1)
+    try:
+        arguments = sys.argv
+        arguments.pop(0)
 
-    p1 = Process(target=sensors)
-    p1.start()
-    p2 = Process(target=main(arguments))
-    p2.start()
+        p1 = Process(target=sensors)
+        p1.start()
+        p2 = Process(target=main(arguments))
+        p2.start()
+
+    except KeyboardInterrupt:
+        print ("Caught KeyboardInterrupt exiting")
+        p1.terminate
+        p2.terminate
 
 
     
