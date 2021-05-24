@@ -140,9 +140,6 @@ def sensors():
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
 
     while True:
-        sleep (3)
-        print ("Starting sesnors")
-        sleep (3)
         # Distance Sensor
         distance = vl53.range
         print ("Range: {0}mm".format(distance))
@@ -416,7 +413,13 @@ if __name__ == "__main__":
     arguments = sys.argv
     arguments.pop(0)
     #main(arguments)
-    p1 = Process(target=sensors)
+    p1 = Process(target=main(arguments))
     p1.start()
-    p2 = Process(target=main(arguments))
+
+    sleep (1)
+    print ("")
+    print ("Starting sesnors \n")
+    sleep (1)
+
+    p2 = Process(target=sensors)
     p2.start()
