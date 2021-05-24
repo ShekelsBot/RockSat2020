@@ -1,7 +1,8 @@
 [Unit]
 Description=VRSE Payload Control Script
-Documentation=
-After=network.target
+Documentation=https://github.com/ShekelsBot/RockSat2020
+Before=network-pre.target
+Wants=network-pre.target
 
 [Service]
 WorkingDirectory=/home/pi/RockSat2020

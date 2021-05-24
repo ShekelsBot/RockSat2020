@@ -120,17 +120,14 @@ def TE(id):
     if id == "1": return (GPIO.input(TE_1) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_1) == 0 and not EXTERNAL_TRIGGER)
     if id == "2": return (GPIO.input(TE_2) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_2) == 0 and not EXTERNAL_TRIGGER)
 
-#Define inhibit
-CAM_INHIBIT = inhibit(1)
-
 def TempConversion(c):
     return c * 9.0 / 5.0 + 32
 
-def write_sensors(): 
+def write_sensors(sensors):
     with open("/home/pi/data/Telemetry.csv", "a") as log:
         log.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},\n"
-        .format(strftime("%Y-%m-%d %H:%M:%S"),"Temp1",str(TempConversion(die1))+" F",str(TempConversion(obj1))+" F",str(die1)+" C",str(obj1)+" C",
-        " ","Distance","BLANK MM",str(xAxis),str(yAxis),str(zAxis)))
+        .format(strftime("%Y-%m-%d %H:%M:%S"),"Temp1",str(TempConversion(sensors["die1"]))+" F",str(TempConversion(sensors["obj1"]))+" F",str(sensors["die1"])+" C",str(obj1)+" C",
+        " ","Distance","BLANK MM",str(["xaxis"]),str(sensors["yaxis"]),str(sensors["zaxis"])))
 
 def sensors():
     # Temperature Sensor 1
@@ -144,15 +141,12 @@ def sensors():
 
     while True:
         # Distance Sensor
-        global distance
         distance = vl53.range
         print ("Range: {0}mm".format(distance))
         #ser.write (b'Range: %d '%(distance)+b' mm \n')
         sleep(.1)
 
         # Temperature Sensor 1
-        global obj1
-        global die1
         obj1 = sensor1.readObjTempC()
         die1 = sensor1.readDieTempC()
 
@@ -164,9 +158,6 @@ def sensors():
         sleep(.1)
 
         # Accelerometer tupple parse
-        global xAxis
-        global yAxis
-        global zAxis
         xAxis = (round(accelerometer.acceleration[0],1))
         yAxis = (round(accelerometer.acceleration[1],1))
         zAxis = (round(accelerometer.acceleration[2],1))
@@ -183,8 +174,14 @@ def sensors():
         print ('Z Axis: %d \n'%(zAxis))
         
         #Write all data
-        write_sensors()
-        sleep(1)
+        write_sensors({
+            "obj1": obj1,
+            "die1": die1,
+            "xaxis": xAxis,
+            "yaxis": yAxis,
+            "zaxis": zAxis
+        })
+        sleep(0.5)
 
 #Camera Testing before flight
 def camera_testing():
@@ -202,7 +199,7 @@ def camera_testing():
     sleep(2)
     Log_Test.out("Mounting Camera")
     os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
-    sleep(1)
+    sleep(4)
     Log_Test.out("Transfer footage")
     os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
     sleep(0.2)
@@ -263,9 +260,13 @@ def main(arguments):
     if ("--reset" in arguments): persist.clear()
     if ("--exit" in arguments): return True
 
-    if CAM_INHIBIT:
-        print ("CAMERA INHIBIT")
+    # If the inhibitor pin is set,
+    if inhibit(1):
+        persist.clear()
         camera_testing()
+        sleep(2)
+        if inhibit(1): os.system("sudo poweroff")
+        return
 
     operating = True
     
@@ -284,9 +285,7 @@ def main(arguments):
     GPIO.setup(EXTEND_LIMIT, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(RETRACT_LIMIT, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     Log.out("GPIO Setup Complete.")
-    
-    # ** if inhibititor pin logic goes here
-    
+
     # Disable motor throttle in case program crashed and was enabled
     arm.throttle = 0
     sleep(1)
@@ -372,7 +371,7 @@ def main(arguments):
             sleep(2)
             Log.out("Mounting 360 degree camera SD card over USB.")
             os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
-            sleep(1)
+            sleep(4)
             os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
             Log.out("All low resolution video files have been copied.")
             sleep(0.2)
@@ -413,7 +412,7 @@ if __name__ == "__main__":
     arguments = sys.argv
     arguments.pop(0)
     #main(arguments)
-    p1 = Process(target = sensors)
+    p1 = Process(target=sensors)
     p1.start()
     p2 = Process(target=main(arguments))
     p2.start()
