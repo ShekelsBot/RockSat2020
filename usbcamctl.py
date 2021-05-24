@@ -39,7 +39,7 @@ def power(mode):
         GPIO.output(pin, GPIO.HIGH)
         sleep(poweron_delay if mode else poweroff_delay)
         GPIO.output(pin, GPIO.LOW)
-        sleep(3)
+        sleep(5)
         return True
     except:
         return False
@@ -47,7 +47,7 @@ def power(mode):
 # Control the USB ports on the pi
 def usb(mode):
     try:
-        output = os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1')
+        output = os.system('sudo uhubctl -a ' + ('on' if mode else 'off') + ' -l 1-1 > /dev/null')
         sleep(3)
         return True
     except:
@@ -58,6 +58,17 @@ def toggleRecord():
     try:
         GPIO.output(pin, GPIO.HIGH)
         sleep(recordon_delay)
+        GPIO.output(pin, GPIO.LOW)
+        sleep(3)
+        return True
+    except:
+        return False
+
+# Toggle the camera's mode (GPIO)
+def toggleMode():
+    try:
+        GPIO.output(pin, GPIO.HIGH)
+        sleep(setmode_delay)
         GPIO.output(pin, GPIO.LOW)
         sleep(3)
         return True

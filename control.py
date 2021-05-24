@@ -89,7 +89,7 @@ config.read('./config.ini')
 
 #Configure I2C 
 i2c = busio.I2C(board.SCL, board.SDA)
-
+ 
 # Configuration & setup tasks
 TE_R = int(config['pinout']['TimerEventR'])                  # Spacecraft Battery Bus Timer Event (TE-R)
 TE_1 = int(config['pinout']['TimerEvent1'])                  # Spacecraft Battery Bus Timer Event (TE-1)
@@ -262,6 +262,7 @@ def main(arguments):
             testing = "buttons"
     if ("--reset" in arguments): persist.clear()
     if ("--exit" in arguments): return True
+
     if CAM_INHIBIT:
         print ("CAMERA INHIBIT")
         camera_testing()

@@ -1,0 +1,14 @@
+[Unit]
+Description=VRSE Payload Control Script
+Documentation=
+After=network.target
+
+[Service]
+WorkingDirectory=/home/pi/RockSat2020
+Type=simple
+User=pi
+ExecStart=/usr/bin/python /home/pi/RockSat2020/control.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
