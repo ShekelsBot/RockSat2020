@@ -260,9 +260,6 @@ def main(arguments):
             testing = "buttons"
     if ("--reset" in arguments): persist.clear()
     if ("--exit" in arguments): return True
-    if (INHIBIT_1 and "--camera" in arguments):
-        persist.clear()
-        camera_testing()
 
     # If the inhibitor pin is set,
     if inhibit(1):
