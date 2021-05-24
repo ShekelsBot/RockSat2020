@@ -140,11 +140,13 @@ def sensors():
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
 
     while True:
+        sleep (3)
+        print ("Starting sesnors")
+        sleep (3)
         # Distance Sensor
         distance = vl53.range
         print ("Range: {0}mm".format(distance))
         #ser.write (b'Range: %d '%(distance)+b' mm \n')
-        sleep(.1)
 
         # Temperature Sensor 1
         obj1 = sensor1.readObjTempC()
@@ -171,7 +173,7 @@ def sensors():
 
         print ('X Axis: %d'%(xAxis))
         print ('Y Axis: %d'%(yAxis))
-        print ('Z Axis: %d'%(zAxis))
+        print ('Z Axis: %d \n'%(zAxis))
         
         #Write all data
         '''
