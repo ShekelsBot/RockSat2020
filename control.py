@@ -412,14 +412,14 @@ def main(arguments):
 if __name__ == "__main__":
     arguments = sys.argv
     arguments.pop(0)
-    #main(arguments)
-    p1 = Process(target=main(arguments))
-    p1.start()
-
-    sleep (1)
-    print ("")
+    
     print ("Starting sesnors \n")
     sleep (1)
 
-    p2 = Process(target=sensors)
+    p1 = Process(target=sensors)
+    p1.start()
+    p2 = Process(target=main(arguments))
     p2.start()
+
+
+    
