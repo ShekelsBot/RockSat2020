@@ -123,12 +123,6 @@ def TE(id):
 def TempConversion(c):
     return c * 9.0 / 5.0 + 32
 
-def write_sensors(sensors):
-    with open("/home/pi/data/Telemetry.csv", "a") as log:
-        log.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},\n"
-        .format(strftime("%Y-%m-%d %H:%M:%S"),"Temp1",str(TempConversion(sensors["die1"]))+" F",str(TempConversion(sensors["obj1"]))+" F",str(sensors["die1"])+" C",str(obj1)+" C",
-        " ","Distance","BLANK MM",str(["xaxis"]),str(sensors["yaxis"]),str(sensors["zaxis"])))
-
 def sensors():
     # Temperature Sensor 1
     sensor1 = TMP006.TMP006()
@@ -161,27 +155,17 @@ def sensors():
         yAxis = (round(accelerometer.acceleration[1],1))
         zAxis = (round(accelerometer.acceleration[2],1))
 
-        '''
+        
         # Accelerometer Serial out
-        ser.write (b'X Axis: %d \n'%(xAxis))
-        ser.write (b'Y Axis: %d \n'%(yAxis))
-        ser.write (b'Z Axis: %d \n'%(zAxis))
-        '''
+        #ser.write (b'X Axis: %d \n'%(xAxis))
+        #ser.write (b'Y Axis: %d \n'%(yAxis))
+        #ser.write (b'Z Axis: %d \n'%(zAxis))
+        
 
         print ('X Axis: %d'%(xAxis))
         print ('Y Axis: %d'%(yAxis))
         print ('Z Axis: %d \n'%(zAxis))
         
-        #Write all data
-        '''
-        write_sensors({
-            "obj1": obj1,
-            "die1": die1,
-            "xaxis": xAxis,
-            "yaxis": yAxis,
-            "zaxis": zAxis
-        })
-        '''
         sleep(0.5)
 
 #Camera Testing before flight
