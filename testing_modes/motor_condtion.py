@@ -20,6 +20,7 @@ GPIO.setup(button3,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(limit_1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 GPIO.setup(limit_2,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 
+
 def state1(): 
         print ("Testing Condtion 1 - ARM EXTENSION")
         print ("Button 1 Pressed")
@@ -64,10 +65,8 @@ def state3():
     sleep(.5)
     exit
 
-while (1):
-    if (GPIO.input(button1)==0):
+def motor_test():
+    while(1):
         state1()
-    if (GPIO.input(button2)==0):
         state2()
-    if (GPIO.input(button3)==0):
         state3()

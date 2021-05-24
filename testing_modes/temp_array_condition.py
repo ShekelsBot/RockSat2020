@@ -14,14 +14,6 @@ import busio
 GPIO.setmode(GPIO.BCM)
 i2c = busio.I2C(board.SCL, board.SDA)
 
-button1=18 #Event 1
-button2=27 #Event 2
-button3=22 #Event 3
-
-GPIO.setup(button1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button2,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button3,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-
 # Function to convert celsius (c) to fahrenhiet.
 def TempConversion(c):
     return c * 9.0 / 5.0 + 32
@@ -43,7 +35,7 @@ sensor.begin()
 sensor_2.begin()
 # Loop printing measurements every second.
 
-def temparray():
+def temparray_test():
     holder = 0
     while holder <= 10:
         if holder < 10:
@@ -69,22 +61,7 @@ def temparray():
             print ("---------------------------------")
             sleep (1)
         else:
-            print ("Test Complete")
-            print ("Press Button 1 to Start")
-            print ("Press Button 2 to quit")
             break
-
-print ("TEMP_ARRAY TEST STARTED")
-print ("Press Button 1 to Start")
-print ("Press Button 2 to quit")
-
-while (1):
-    if (GPIO.input(button1)==0):
-        #write_die_temp()
-        temparray()
-    if (GPIO.input(button2)==0):
-        print("Testing Exited")
-        break
 
 
 

@@ -1,22 +1,19 @@
 #!/usr/bin/python
 """
     control - This is the main program for the VRSE payload.
-
     ** This script must be run with ~/RockSat2020 as the working directory
        with all of the directories (logs, data, video) and all of the files
        (config.ini) in place.
-
     Contributors:
         Andrew Bruckbauer
         Konstantin Zaremski
-
     Testing:
         The control program can be tested using the '--test' argument.
         Flat Sat (Default)      $ python control.py --test
         Flat Sat (Explicit)     $ python control.py --test flatsat
         Buttons                 $ python control.py --test buttons
+        360_Camera              Just connect the inhibit wire
         ** During any test routine shutdown is simulated.
-
     Reset:
         The control program can be reset using the '--reset' argument.
         The reset argument clears any persisting save state so that operaiton
@@ -24,12 +21,10 @@
         $ python control.py --reset
         Flags can be supplied together (optional):    
         $ python control.py --reset --test
-
     Functionality:
         This program controls all VRSE functionality including arm extension
         and retraction, camera recording, and telemetry based on timer events
         provided by the host spacecraft.
-
     Spacecraft Battery Bus Timer Events:
         ID      Time    Description & Action
         GSE     T-30s   Spacecraft power is turned on and the Pi running this
@@ -48,18 +43,40 @@
         TE-2    T+330s  The final timer event for the VRSE payload, which will
                         trigger a sync of filesystems and proper shutdown of the
                         Pi and other equipment for re-entry.
+    Sensor Pins
+        Temperature Sensor 1
+            VCC - RED - 3.5v
+            GND - BLK - Ground
+            SDA - YLW - SDA
+            SCL - BRN - SCL
+
+        Accelerometer Sensor
+            3v3 - RED - 3.5v
+            GND - BLK - Ground
+            SDA - YLW - SDA
+            SCL - BRN - SCL
+
+        Distance Sensor
+            VIN - RED - 3.5v
+            GND - BLK - Ground
+            SDA - YLW - SDA
+            SCL - BRN - SCL
 """
 
 # Import dependencies
+from multiprocessing import Process
 import sys
 import configparser
 from RPi import GPIO
 import datetime
-from time import sleep
-import board
+from time import sleep, strftime
+import board, busio, serial
 import threading
 import os
 from adafruit_motorkit import MotorKit
+import Adafruit_TMP.TMP006 as TMP006
+import adafruit_vl53l0x
+import adafruit_adxl34x
 
 # Unique
 from logger import Logger
@@ -70,12 +87,16 @@ import persist
 config = configparser.ConfigParser()
 config.read('./config.ini')
 
+#Configure I2C 
+i2c = busio.I2C(board.SCL, board.SDA)
+ 
 # Configuration & setup tasks
 TE_R = int(config['pinout']['TimerEventR'])                  # Spacecraft Battery Bus Timer Event (TE-R)
 TE_1 = int(config['pinout']['TimerEvent1'])                  # Spacecraft Battery Bus Timer Event (TE-1)
 TE_2 = int(config['pinout']['TimerEvent2'])                  # Spacecraft Battery Bus Timer Event (TE-2)
 EXTEND_LIMIT = int(config['pinout']['ExtendLimitSwitch'])    # Arm Extension Limit Switch
 RETRACT_LIMIT = int(config['pinout']['RetractLimitSwitch'])  # Arm Retraction Limit Switch
+INHIBIT_1=int(config['pinout']['Inhibit_1'])                 # Flight Inhibit
 
 # Whether or not timer events are triggered by an external signal (flatsat, mission) or 
 EXTERNAL_TRIGGER = True
@@ -86,13 +107,114 @@ GPIO.setmode(GPIO.BCM)
 kit = MotorKit(i2c=board.I2C())
 arm = kit.motor3
 
+# Setup GPIO
+GPIO.setup(INHIBIT_1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
 # Shorthand
 def armExtended(): return GPIO.input(EXTEND_LIMIT) == 0
 def armRetracted(): return GPIO.input(RETRACT_LIMIT) == 0
+def inhibit(id):
+    if id == 1: return GPIO.input(INHIBIT_1) == 0
 def TE(id):
     if id == "R": return (GPIO.input(TE_R) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_R) == 0 and not EXTERNAL_TRIGGER)
     if id == "1": return (GPIO.input(TE_1) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_1) == 0 and not EXTERNAL_TRIGGER)
     if id == "2": return (GPIO.input(TE_2) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_2) == 0 and not EXTERNAL_TRIGGER)
+
+#Define inhibit
+CAM_INHIBIT = inhibit(1)
+
+def TempConversion(c):
+    return c * 9.0 / 5.0 + 32
+
+def write_sensors(): 
+    with open("/home/pi/data/Telemetry.csv", "a") as log:
+        log.write("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},\n"
+        .format(strftime("%Y-%m-%d %H:%M:%S"),"Temp1",str(TempConversion(die1))+" F",str(TempConversion(obj1))+" F",str(die1)+" C",str(obj1)+" C",
+        " ","Distance","BLANK MM",str(xAxis),str(yAxis),str(zAxis)))
+
+def sensors():
+    # Temperature Sensor 1
+    sensor1 = TMP006.TMP006()
+    sensor1 = TMP006.TMP006(address=0x40, busnum=1) # Default i2C address is 0x40 and bus is 1.
+    sensor1.begin()
+    # Accelerometer Sensor
+    accelerometer = adafruit_adxl34x.ADXL345(i2c)
+    # Distance Sensor
+    vl53 = adafruit_vl53l0x.VL53L0X(i2c)
+
+    while True:
+        # Distance Sensor
+        global distance
+        distance = vl53.range
+        print ("Range: {0}mm".format(distance))
+        #ser.write (b'Range: %d '%(distance)+b' mm \n')
+        sleep(.1)
+
+        # Temperature Sensor 1
+        global obj1
+        global die1
+        obj1 = sensor1.readObjTempC()
+        die1 = sensor1.readDieTempC()
+
+        # Temperature Sensor 1 Serial out
+        #ser.write (b'Sensor 1 object Temperature: %d \n'%(obj1))
+        #ser.write (b'Sensor 1 die Temperature: %d \n'%(die1))
+        print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj1, TempConversion(obj1)))
+        print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die1, TempConversion(die1)))
+        sleep(.1)
+
+        # Accelerometer tupple parse
+        global xAxis
+        global yAxis
+        global zAxis
+        xAxis = (round(accelerometer.acceleration[0],1))
+        yAxis = (round(accelerometer.acceleration[1],1))
+        zAxis = (round(accelerometer.acceleration[2],1))
+
+        '''
+        # Accelerometer Serial out
+        ser.write (b'X Axis: %d \n'%(xAxis))
+        ser.write (b'Y Axis: %d \n'%(yAxis))
+        ser.write (b'Z Axis: %d \n'%(zAxis))
+        '''
+
+        print ('X Axis: %d \n'%(xAxis))
+        print ('Y Axis: %d \n'%(yAxis))
+        print ('Z Axis: %d \n'%(zAxis))
+        
+        #Write all data
+        write_sensors()
+        sleep(1)
+
+#Camera Testing before flight
+def camera_testing():
+    usbcamctl.power(True) #Power on
+    usbcamctl.usb(False) #USB Power off
+    usbcamctl.toggleRecord() #Toggle recording
+    sleep(10)
+    usbcamctl.toggleRecord() #Stop recording
+    usbcamctl.usb(True) #Turn on power to USB
+
+    Log_Test = Logger()
+    # Mount and tranfer files
+    if not os.path.isdir('/mnt/usb'): os.system("sudo mkdir -p /mnt/usb")
+    if not os.path.isdir('video'): os.system("mkdir video")
+    sleep(2)
+    Log_Test.out("Mounting Camera")
+    os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
+    sleep(1)
+    Log_Test.out("Transfer footage")
+    os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
+    sleep(0.2)
+    Log_Test.out("Syncing")
+    os.system("sync")
+    sleep(0.2)
+    Log_Test.out("Unmounting camera")
+    os.system("sudo umount /dev/sda1")
+    sleep(1)
+    #Power off camera
+    Log_Test.out("Turning off camera")
+    usbcamctl.power(False)
 
 # Extend arm motor control operations
 def extendArm():
@@ -140,6 +262,10 @@ def main(arguments):
             testing = "buttons"
     if ("--reset" in arguments): persist.clear()
     if ("--exit" in arguments): return True
+
+    if CAM_INHIBIT:
+        print ("CAMERA INHIBIT")
+        camera_testing()
 
     operating = True
     
@@ -283,4 +409,8 @@ def main(arguments):
 if __name__ == "__main__":
     arguments = sys.argv
     arguments.pop(0)
-    main(arguments)
+    #main(arguments)
+    p1 = Process(target = sensors)
+    p1.start()
+    p2 = Process(target=main(arguments))
+    p2.start()

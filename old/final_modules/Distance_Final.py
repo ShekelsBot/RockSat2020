@@ -13,15 +13,6 @@ import matplotlib.pyplot as plt
 import board
 import busio
 import adafruit_vl53l0x
-import RPI.GPIO as GPIO
-
-button1=18 #Event 1
-button2=27 #Event 2
-button3=22 #Event 3
-
-GPIO.setup(button1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button2,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-GPIO.setup(button3,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 
 def write(distance): #distance file
     with open("/home/pi/range.csv", "a") as log:
@@ -36,5 +27,4 @@ while True:
     distance = vl53.range
 
     print("Range: {0}mm".format(vl53.range))
-    write(distance)
-    plt.pause(1)
+    sleep(1)

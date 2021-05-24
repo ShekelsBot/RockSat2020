@@ -26,5 +26,4 @@ while True:
         a = item[0] + str(round(item[1],1))
         allAxis += a + "\n"
     print (allAxis)
-    write(allAxis)
     time.sleep(1)
