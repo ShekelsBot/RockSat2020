@@ -123,7 +123,12 @@ def TE(id):
 def TempConversion(c):
     return c * 9.0 / 5.0 + 32
 
+# Start logging
+Log = Logger()
+Log.out("    V.R.S.E. Payload Control Program Started at system time: " + str(datetime.datetime.now().strftime("%Y-%m-%d T%H:%M:%S")) + ".")
+
 def sensors():
+    #    INIT SENSORS
     # Temperature Sensor 1
     sensor1 = TMP006.TMP006()
     sensor1 = TMP006.TMP006(address=0x40, busnum=1) # Default i2C address is 0x40 and bus is 1.
@@ -133,7 +138,10 @@ def sensors():
     # Distance Sensor
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
 
-    while True:
+    # Start the sensor output file
+    datafile = open("./data/vrse-sensors-" + str(datetime.datetime.now().strftime("%Y%m%d-T%H%M%S")) + ".csv", "w") 
+
+    while not TE("2"):
         # Distance Sensor
         distance = vl53.range
         print ("Range: {0}mm".format(distance))
@@ -159,14 +167,13 @@ def sensors():
         # Accelerometer Serial out
         #ser.write (b'X Axis: %d \n'%(xAxis))
         #ser.write (b'Y Axis: %d \n'%(yAxis))
-        #ser.write (b'Z Axis: %d \n'%(zAxis))
+        #ser.write (b'Z Axis: %d \n'%(zAxis)) 
+        print (f"Accelerometer (X:{xAxis},Y:{yAxis},Z:{zAxis})")
         
-
-        print ('X Axis: %d'%(xAxis))
-        print ('Y Axis: %d'%(yAxis))
-        print ('Z Axis: %d \n'%(zAxis))
-        
+        # Output in CSV (Object Temperature, Die Temperature, Accel X, Accel Y, Accel Z, Distance)
+        datafile.write(f"{str(obj1)},{str(die1)},{str(xAxis)},{str(yAxis)},{str(zAxis)},{str(distance)}")
         sleep(0.5)
+    datafile.close()
 
 #Camera Testing before flight
 def camera_testing():
@@ -254,10 +261,8 @@ def main(arguments):
         return
 
     operating = True
-    
-    # Begin logging
-    Log = Logger()
-    Log.out("    V.R.S.E. Payload Control Program Started at system time: " + str(datetime.datetime.now().strftime("%Y-%m-%d T%H:%M:%S")) + ".")
+   
+    # Log opertation mode
     Log.out("    Operation Mode: " + "MISSION" if not testing else "TESTING")
     
     # Setup GPIO
@@ -383,14 +388,16 @@ def main(arguments):
         elif currentState == "SPLASH":
             Log.out("SPLASH state, exiting signal listen mode and shutting down electronic systems.")
             operating = False
-    # ** Stop telemetry here
+    
     # Sync to the drives & poweroff
     os.system("sync")
     
     # End logging
     Log.close()
     
-    if not testing: os.system("sudo poweroff")
+    if not testing:
+        sleep(1)
+        os.system("sudo poweroff")
 
 # Entry point
 if __name__ == "__main__":
@@ -409,7 +416,4 @@ if __name__ == "__main__":
         p2.terminate()
 
         p1.join()
-        p2.join()
-
-
-    
+        p2.join() 
