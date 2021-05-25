@@ -3,6 +3,8 @@ videos/
 data/
 logs/
 
+.vscode/
+
 # Exclude python stuff
 __pycache__/
 
