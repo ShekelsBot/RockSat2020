@@ -380,7 +380,7 @@ def main(arguments):
     
     if not testing:
         if inhibited: persist.clear()
-        if not inhibit(): return
+        if not inhibit(): return True
         sleep(0.5)
         os.system("sudo poweroff")
 
@@ -394,7 +394,8 @@ if __name__ == "__main__":
         p1.start()
         p2 = Process(target=main(arguments))
         p2.start()
-
+        p2.join()
+        p1.terminate()
     except KeyboardInterrupt:
         print ("Caught KeyboardInterrupt exiting")
         p1.terminate()
