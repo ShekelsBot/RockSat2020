@@ -89,7 +89,24 @@ config.read('./config.ini')
 
 #Configure I2C 
 i2c = busio.I2C(board.SCL, board.SDA)
+<<<<<<< Updated upstream
  
+=======
+
+#Serial port
+try:
+    ser = serial.Serial(
+        port='/dev/ttyS0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
+        baudrate = 9600,
+        parity=serial.PARITY_NONE,
+        stopbits=serial.STOPBITS_ONE,
+        bytesize=serial.EIGHTBITS,
+        timeout=1
+    )
+except:
+    print ("Error while defining the serial port")
+
+>>>>>>> Stashed changes
 # Configuration & setup tasks
 TE_R = int(config['pinout']['TimerEventR'])                  # Spacecraft Battery Bus Timer Event (TE-R)
 TE_1 = int(config['pinout']['TimerEvent1'])                  # Spacecraft Battery Bus Timer Event (TE-1)
@@ -106,6 +123,7 @@ GPIO.setmode(GPIO.BCM)
 # MotorKit class
 kit = MotorKit(i2c=board.I2C())
 arm = kit.motor3
+lock = kit.motor4
 
 # Setup GPIO
 GPIO.setup(INHIBIT_1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -180,6 +198,8 @@ def extendArm():
         # If extend limit switch not hit, extend (positive throttle),
         # otherwise return True to signify extension
         if not armExtended():
+            lock.throttle = 1
+            #Disable lock and let arm extend
             arm.throttle = 1
             sleep(1)
             while arm.throttle == 1:
