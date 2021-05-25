@@ -171,7 +171,8 @@ def sensors():
         print (f"Accelerometer (X:{xAxis},Y:{yAxis},Z:{zAxis})")
         
         # Output in CSV (Object Temperature, Die Temperature, Accel X, Accel Y, Accel Z, Distance)
-        datafile.write(f"{str(obj1)},{str(die1)},{str(xAxis)},{str(yAxis)},{str(zAxis)},{str(distance)}")
+        output = f"{str(obj1)},{str(die1)},{str(xAxis)},{str(yAxis)},{str(zAxis)},{str(distance)}"
+        datafile.write(output + "\n")
         datafile.flush()
         sleep(0.5)
 
