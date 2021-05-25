@@ -141,7 +141,7 @@ def sensors():
     # Start the sensor output file
     datafile = open("./data/vrse-sensors-" + str(datetime.datetime.now().strftime("%Y%m%d-T%H%M%S")) + ".csv", "w") 
 
-    while not TE("2"):
+    while True: 
         # Distance Sensor
         distance = vl53.range
         print ("Range: {0}mm".format(distance))
@@ -172,8 +172,8 @@ def sensors():
         
         # Output in CSV (Object Temperature, Die Temperature, Accel X, Accel Y, Accel Z, Distance)
         datafile.write(f"{str(obj1)},{str(die1)},{str(xAxis)},{str(yAxis)},{str(zAxis)},{str(distance)}")
+        datafile.flush()
         sleep(0.5)
-    datafile.close()
 
 #Camera Testing before flight
 def camera_testing():
