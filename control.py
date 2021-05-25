@@ -89,9 +89,6 @@ config.read('./config.ini')
 
 #Configure I2C 
 i2c = busio.I2C(board.SCL, board.SDA)
-<<<<<<< Updated upstream
- 
-=======
 
 #Serial port
 try:
@@ -106,7 +103,6 @@ try:
 except:
     print ("Error while defining the serial port")
 
->>>>>>> Stashed changes
 # Configuration & setup tasks
 TE_R = int(config['pinout']['TimerEventR'])                  # Spacecraft Battery Bus Timer Event (TE-R)
 TE_1 = int(config['pinout']['TimerEvent1'])                  # Spacecraft Battery Bus Timer Event (TE-1)
