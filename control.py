@@ -157,35 +157,28 @@ def sensors():
     while True:
         # Distance Sensor
         distance = vl53.range
-        print ("Range: {0}mm".format(distance))
-        #ser.write (b'Range: %d '%(distance)+b' mm \n')
 
         # Temperature Sensor 1
         obj1 = sensor1.readObjTempC()
         die1 = sensor1.readDieTempC()
-
-        # Temperature Sensor 1 Serial out
-        #ser.write (b'Sensor 1 object Temperature: %d \n'%(obj1))
-        #ser.write (b'Sensor 1 die Temperature: %d \n'%(die1))
-        print ('Object temperature: {0:0.3F}*C / {1:0.3F}*F'.format(obj1, TempConversion(obj1)))
-        print ('Die temperature: {0:0.3F}*C / {1:0.3F}*F'.format(die1, TempConversion(die1)))
-        sleep(.1)
 
         # Accelerometer tupple parse
         xAxis = (round(accelerometer.acceleration[0],1))
         yAxis = (round(accelerometer.acceleration[1],1))
         zAxis = (round(accelerometer.acceleration[2],1))
         
-        # Accelerometer Serial out
-        #ser.write (b'X Axis: %d \n'%(xAxis))
-        #ser.write (b'Y Axis: %d \n'%(yAxis))
-        #ser.write (b'Z Axis: %d \n'%(zAxis)) 
-        print (f"Accelerometer (X:{xAxis},Y:{yAxis},Z:{zAxis})")
-        
         # Output in CSV (Object Temperature, Die Temperature, Accel X, Accel Y, Accel Z, Distance)
         output = f"{str(datetime.datetime.now().strftime('%Y%m%d-T%H%M%S'))},{str(obj1)},{str(die1)},{str(xAxis)},{str(yAxis)},{str(zAxis)},{str(distance)}"
         datafile.write(output + "\n")
         datafile.flush()
+
+        print (output)
+
+        try:
+            ser.write(f"{output}|".encode())
+        except:
+            print ("Serial Error")
+
         sleep(0.5)
 
 # Extend arm motor control operations
