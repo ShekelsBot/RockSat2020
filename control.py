@@ -113,15 +113,13 @@ GPIO.setup(INHIBIT_1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # Shorthand
 def armExtended(): return GPIO.input(EXTEND_LIMIT) == 0
 def armRetracted(): return GPIO.input(RETRACT_LIMIT) == 0
-def inhibit(id):
-    if id == 1: return GPIO.input(INHIBIT_1) == 0
+def inhibit(): return GPIO.input(INHIBIT_1) == 0
 def TE(id):
     if id == "R": return (GPIO.input(TE_R) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_R) == 0 and not EXTERNAL_TRIGGER)
     if id == "1": return (GPIO.input(TE_1) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_1) == 0 and not EXTERNAL_TRIGGER)
     if id == "2": return (GPIO.input(TE_2) == 1 and EXTERNAL_TRIGGER) or (GPIO.input(TE_2) == 0 and not EXTERNAL_TRIGGER)
 
-def TempConversion(c):
-    return c * 9.0 / 5.0 + 32
+def TempConversion(c): return c * 9.0 / 5.0 + 32
 
 # Start logging
 Log = Logger()
@@ -137,11 +135,12 @@ def sensors():
     accelerometer = adafruit_adxl34x.ADXL345(i2c)
     # Distance Sensor
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
+    Log.out("Initialized sensors.")
 
     # Start the sensor output file
     datafile = open("./data/vrse-sensors-" + str(datetime.datetime.now().strftime("%Y%m%d-T%H%M%S")) + ".csv", "w") 
-
-    while True: 
+    Log.out("Sensor data logging has begun.")
+    while True:
         # Distance Sensor
         distance = vl53.range
         print ("Range: {0}mm".format(distance))
@@ -162,7 +161,6 @@ def sensors():
         xAxis = (round(accelerometer.acceleration[0],1))
         yAxis = (round(accelerometer.acceleration[1],1))
         zAxis = (round(accelerometer.acceleration[2],1))
-
         
         # Accelerometer Serial out
         #ser.write (b'X Axis: %d \n'%(xAxis))
@@ -171,40 +169,10 @@ def sensors():
         print (f"Accelerometer (X:{xAxis},Y:{yAxis},Z:{zAxis})")
         
         # Output in CSV (Object Temperature, Die Temperature, Accel X, Accel Y, Accel Z, Distance)
-        output = f"{str(obj1)},{str(die1)},{str(xAxis)},{str(yAxis)},{str(zAxis)},{str(distance)}"
+        output = f"{str(datetime.datetime.now().strftime("%Y%m%d-T%H%M%S"))},{str(obj1)},{str(die1)},{str(xAxis)},{str(yAxis)},{str(zAxis)},{str(distance)}"
         datafile.write(output + "\n")
         datafile.flush()
         sleep(0.5)
-
-#Camera Testing before flight
-def camera_testing():
-    usbcamctl.usb(False) #USB Power off
-    usbcamctl.power(True) #Power on
-    usbcamctl.toggleRecord() #Toggle recording
-    sleep(10)
-    usbcamctl.toggleRecord() #Stop recording
-    usbcamctl.usb(True) #Turn on power to USB
-
-    Log_Test = Logger()
-    # Mount and tranfer files
-    if not os.path.isdir('/mnt/usb'): os.system("sudo mkdir -p /mnt/usb")
-    if not os.path.isdir('video'): os.system("mkdir video")
-    sleep(2)
-    Log_Test.out("Mounting Camera")
-    os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
-    sleep(4)
-    Log_Test.out("Transfer footage")
-    os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
-    sleep(0.2)
-    Log_Test.out("Syncing")
-    os.system("sync")
-    sleep(0.2)
-    Log_Test.out("Unmounting camera")
-    os.system("sudo umount /dev/sda1")
-    sleep(1)
-    #Power off camera
-    Log_Test.out("Turning off camera")
-    usbcamctl.power(False)
 
 # Extend arm motor control operations
 def extendArm():
@@ -253,13 +221,9 @@ def main(arguments):
     if ("--reset" in arguments): persist.clear()
     if ("--exit" in arguments): return True
 
-    # If the inhibitor pin is set,
-    if inhibit(1):
-        persist.clear()
-        camera_testing()
-        sleep(2)
-        if inhibit(1): os.system("sudo poweroff")
-        return
+    # If the inhibitor pin is set, clear the save state
+    inhibited = inhibit()
+    if inhibited: persist.clear()
 
     operating = True
    
@@ -297,7 +261,7 @@ def main(arguments):
     while operating:
         if TE("R") and (not currentState or currentState == "TE-R"):
             currentState = "TE-R"
-            persist.set(currentState)
+            if not inhibited: persist.set(currentState)
             Log.out("TE-R signal detected, beginning arm extension and video recording.")
             
             # Set up camera for recording 
@@ -323,68 +287,86 @@ def main(arguments):
             }
             # Wrapper functions for multi threading
             def doRecord():
+                Log.out("Beginnign 360 camera recording.")
                 status["recording"] = record(powerfailed)
                 Log.out(f"The 360 degree camera is {'recording' if status['recording'] else 'not recording'}.")
                 return
             def doExtend():
+                Log.out("Beginning arm extension.")
                 status["extended"] = extendArm()
                 Log.out(f"The arm is {'extended' if status['extended'] else 'not extended'}.")
                 return
             # Create threads
             recordThread = threading.Thread(target=doRecord)
             recordThread.start()
-            extendThread = threading.Thread(target=doExtend)
-            extendThread.start()
+            if not inhibited: extendThread = threading.Thread(target=doExtend)
+            if not inhibited: extendThread.start()
             # Finish threads
             recordThread.join()
-            extendThread.join()
+            if not inhibited: extendThread.join()
             
             # Move on to the next 
             currentState = "TE-1"
-            persist.set(currentState)
+            if not inhibited: persist.set(currentState)
             Log.out("TE-R tasks are complete, waiting for TE-1 signal.")
         elif TE("1") and currentState == "TE-1":
             Log.out("TE-1 signal detected, retracting arm and transferring low quality footage to Pi.")
 
-            # Retract Arm
-            retraction = retractArm()
-            Log.out(f"The arm is {'retracted' if retraction else 'not retracted'}.")
+            # Async functions
+            def doRetract():
+                Log.out("Beginning arm retraction.")
+                retraction = retractArm()
+                Log.out(f"The arm is {'retracted' if retraction else 'not retracted'}.")
 
-            # Stop recording and enable USB interface
-            stoppedRecording = usbcamctl.toggleRecord()
-            Log.out(f"The 360 degree camera is {'no longer recording' if stoppedRecording else 'still recording'}.")
-            usbOn = usbcamctl.usb(True)
-            Log.out(f"USB ports are {'now enabled' if usbOn else 'still disabled'}.")
+            def doStopRecordAndTransfer():
+                # Stop recording and enable USB interface
+                stoppedRecording = usbcamctl.toggleRecord()
+                Log.out(f"The 360 degree camera is {'no longer recording' if stoppedRecording else 'still recording'}.")
+                usbOn = usbcamctl.usb(True)
+                Log.out(f"USB ports are {'now enabled' if usbOn else 'still disabled'}.")
 
-            # Mount and tranfer files
-            if not os.path.isdir('/mnt/usb'): os.system("sudo mkdir -p /mnt/usb")
-            if not os.path.isdir('video'): os.system("mkdir video")
-            sleep(2)
-            Log.out("Mounting 360 degree camera SD card over USB.")
-            os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
-            sleep(4)
-            os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
-            Log.out("All low resolution video files have been copied.")
-            sleep(0.2)
-            os.system("sync")
-            Log.out("All buffers have been synchronized with their respective block devices.")
-            sleep(0.2)
-            Log.out("Unmounting 360 degree camera.")
-            os.system("sudo umount /dev/sda1")
-            sleep(1)
+                # Mount and tranfer files
+                if not os.path.isdir('/mnt/usb'): os.system("sudo mkdir -p /mnt/usb")
+                if not os.path.isdir('video'): os.system("mkdir video")
+                sleep(2)
+                Log.out("Mounting 360 degree camera SD card over USB.")
+                os.system("sudo mount -o ro /dev/sda1 /mnt/usb")
+                sleep(4)
+                os.system("cp /mnt/usb/DCIM/*/*AB.MP4 ./video/")
+                Log.out("All low resolution video files have been copied.")
+                sleep(0.2)
+                os.system("sync")
+                Log.out("All buffers have been synchronized with their respective block devices.")
+                sleep(0.2)
+                Log.out("Unmounting 360 degree camera.")
+                os.system("sudo umount /dev/sda1")
+                sleep(1)
 
-            # Power off the camera
-            camOff = usbcamctl.power(False)
-            Log.out(f"The camera is {'shut down' if camOff else 'still running'}.")
+                # Power off the camera
+                camOff = usbcamctl.power(False)
+                Log.out(f"The camera is {'shut down' if camOff else 'still running'}.")
+
+            # Start TE-1 tasks
+            if not inhibited: retractThread = threading.Thread(target=doRetract)
+            if not inhibited: retractThread.start()
+            sleep(10)
+            recordStopThread = threading.Thread(target=doStopRecordAndTransfer)
+            recordStopThread.start()
+
+            # Async wait
+            def collectTE1():
+                if not inhibited(): retractThread.join()
+                recordStopThread.join()
+                Log.out("TE-1 tasks are now complete.")
 
             # Move on to the next
             currentState = "TE-2"
-            persist.set(currentState)
-            Log.out("TE-1 tasks are completed, waiting for TE-2 signal.")
+            if not inhibited: persist.set(currentState)
+            Log.out("Waiting for TE-2 signal.")
         elif TE("2") and currentState == "TE-2":
             Log.out("TE-2 signal detected, exiting signal listen mode and shutting down electronic systems.")
             currentState = "SPLASH"
-            persist.set(currentState)
+            if not inhibited: persist.set(currentState)
             operating = False
         elif currentState == "SPLASH":
             Log.out("SPLASH state, exiting signal listen mode and shutting down electronic systems.")
@@ -397,7 +379,9 @@ def main(arguments):
     Log.close()
     
     if not testing:
-        sleep(1)
+        if inhibited: persist.clear()
+        if not inhibit(): return
+        sleep(0.5)
         os.system("sudo poweroff")
 
 # Entry point
