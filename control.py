@@ -148,11 +148,9 @@ def sensors():
     accelerometer = adafruit_adxl34x.ADXL345(i2c)
     # Distance Sensor
     vl53 = adafruit_vl53l0x.VL53L0X(i2c)
-    Log.out("Initialized sensors.")
 
     # Start the sensor output file
     datafile = open("./data/vrse-sensors-" + str(datetime.datetime.now().strftime("%Y%m%d-T%H%M%S")) + ".csv", "w") 
-    Log.out("Sensor data logging has begun.")
     while True:
         # Distance Sensor
         distance = vl53.range
