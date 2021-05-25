@@ -380,7 +380,7 @@ def main(arguments):
     
     if not testing:
         if inhibited: persist.clear()
-        if not inhibit(): return True
+        if inhibited and not inhibit(): return True
         sleep(0.5)
         os.system("sudo poweroff")
 
