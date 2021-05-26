@@ -154,6 +154,7 @@ def sensors():
     # Start the sensor output file
     datafile = open("./data/vrse-sensors-" + str(datetime.datetime.now().strftime("%Y%m%d-T%H%M%S")) + ".csv", "w") 
     Log.out("Sensor data logging has begun.")
+    
     while True:
         try:
             # Distance Sensor
