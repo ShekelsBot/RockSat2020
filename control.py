@@ -155,31 +155,34 @@ def sensors():
     datafile = open("./data/vrse-sensors-" + str(datetime.datetime.now().strftime("%Y%m%d-T%H%M%S")) + ".csv", "w") 
     Log.out("Sensor data logging has begun.")
     while True:
-        # Distance Sensor
-        distance = vl53.range
-
-        # Temperature Sensor 1
-        obj1 = sensor1.readObjTempC()
-        die1 = sensor1.readDieTempC()
-
-        # Accelerometer tupple parse
-        xAxis = (round(accelerometer.acceleration[0],1))
-        yAxis = (round(accelerometer.acceleration[1],1))
-        zAxis = (round(accelerometer.acceleration[2],1))
-        
-        # Output in CSV (Object Temperature, Die Temperature, Accel X, Accel Y, Accel Z, Distance)
-        output = f"{str(datetime.datetime.now().strftime('%Y%m%d-T%H%M%S'))},{str(obj1)},{str(die1)},{str(xAxis)},{str(yAxis)},{str(zAxis)},{str(distance)}"
-        datafile.write(output + "\n")
-        datafile.flush()
-
-        print (output)
-
         try:
-            ser.write(f"{output}|".encode())
-        except:
-            print ("Serial Error")
+            # Distance Sensor
+            distance = vl53.range
 
-        sleep(0.5)
+            # Temperature Sensor 1
+            obj1 = sensor1.readObjTempC()
+            die1 = sensor1.readDieTempC()
+
+            # Accelerometer tupple parse
+            xAxis = (round(accelerometer.acceleration[0],1))
+            yAxis = (round(accelerometer.acceleration[1],1))
+            zAxis = (round(accelerometer.acceleration[2],1))
+            
+            # Output in CSV (Object Temperature, Die Temperature, Accel X, Accel Y, Accel Z, Distance)
+            output = f"{str(datetime.datetime.now().strftime('%Y%m%d-T%H%M%S'))},{str(obj1)},{str(die1)},{str(xAxis)},{str(yAxis)},{str(zAxis)},{str(distance)}"
+            datafile.write(output + "\n")
+            datafile.flush()
+
+            print (output)
+
+            try:
+                ser.write(f"{output}|".encode())
+            except:
+                print ("Serial Error")
+
+            sleep(0.5)
+        except:
+            print ("Sensor Failure. Ch")
 
 # Extend arm motor control operations
 def extendArm():
